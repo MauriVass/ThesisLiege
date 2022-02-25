@@ -29,7 +29,10 @@
 \addbibresource{bibliography.bib}
 
 % to load the glossaries, not needed if using bib2gls
-\input{glossaries.tex}
+\input{abbrevations.tex}
+\makeglossaries
+
+\input{symbols.tex}
 \makeglossaries
 
 \begin{document}
@@ -75,10 +78,9 @@
 
 \tableofcontents
 
-
 % \listoftables % ToC for tables
 
-% \listoffigures % ToC for figures
+\listoffigures % ToC for figures
 
 % actually abbreviation is the name used for acronym in glossaries-extra
 % title sets the name
@@ -86,7 +88,8 @@
 % style overrides the global style
 % here we are printing only abbreviations
 % printunsrtglossary if using record, otherwise printglossary is ok
-\printunsrtglossary[title=Acronyms,type=\glsxtrabbrvtype]
+\printunsrtglossary[title=Abbrevetions,type=\glsxtrabbrvtype]
+\printunsrtglossary[title=Symbols, type=symbols]
 
 % also list of symbols here if needed
 
