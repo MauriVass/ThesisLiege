@@ -1,0 +1,38 @@
+id;element1;element2;variable;subnet;voltLvl
+HV1 Measurement 157;HV1 Bus 18;NULL;p;HV1_MV1.101;3
+HV1 Measurement 158;HV1 Bus 18;NULL;q;HV1_MV1.101;3
+HV1 Measurement 159;HV1 Bus 18;NULL;v;HV1_MV1.101;3
+HV1 Measurement 427;HV1 Bus 17;NULL;p;HV1_MV1.101;3
+HV1 Measurement 428;HV1 Bus 17;NULL;q;HV1_MV1.101;3
+HV1 Measurement 429;HV1 Bus 17;NULL;v;HV1_MV1.101;3
+MV1.101 Measurement 3;MV1.101 Bus 8_2;MV1.101 Line 5;p;MV1.101_Feeder1;5
+MV1.101 Measurement 4;MV1.101 Bus 12_2;MV1.101 Line 9;p;MV1.101_Feeder1;5
+MV1.101 Measurement 5;MV1.101 Bus 34_2;MV1.101 Line 31;p;MV1.101_Feeder4;5
+MV1.101 Measurement 6;MV1.101 Bus 46_2;MV1.101 Line 43;p;MV1.101_Feeder5;5
+MV1.101 Measurement 7;MV1.101 Bus 62_2;MV1.101 Line 59;p;MV1.101_Feeder6;5
+MV1.101 Measurement 8;MV1.101 Bus 77_3;MV1.101 loop_line 3;p;MV1.101_Loop_Line;5
+MV1.101 Measurement 9;MV1.101 Bus 96_3;MV1.101 loop_line 4;p;MV1.101_Loop_Line;5
+MV1.101 Measurement 10;MV1.101 Bus 8_2;MV1.101 Line 5;q;MV1.101_Feeder1;5
+MV1.101 Measurement 11;MV1.101 Bus 12_2;MV1.101 Line 9;q;MV1.101_Feeder1;5
+MV1.101 Measurement 12;MV1.101 Bus 34_2;MV1.101 Line 31;q;MV1.101_Feeder4;5
+MV1.101 Measurement 13;MV1.101 busbar1.1;NULL;v;MV1.101;5
+MV1.101 Measurement 14;MV1.101 Bus 46_2;MV1.101 Line 43;q;MV1.101_Feeder5;5
+MV1.101 Measurement 15;MV1.101 Bus 62_2;MV1.101 Line 59;q;MV1.101_Feeder6;5
+MV1.101 Measurement 16;MV1.101 Bus 77_3;MV1.101 loop_line 3;q;MV1.101_Loop_Line;5
+MV1.101 Measurement 17;MV1.101 Bus 96_3;MV1.101 loop_line 4;q;MV1.101_Loop_Line;5
+MV1.101 Measurement 18;MV1.101 Bus 13;NULL;v;MV1.101_Feeder1;5
+MV1.101 Measurement 19;MV1.101 Bus 31;NULL;v;MV1.101_Feeder4;5
+MV1.101 Measurement 20;MV1.101 Bus 52;NULL;v;MV1.101_Feeder6;5
+MV1.101 Measurement 21;MV1.101 Bus 13;NULL;p;MV1.101_Feeder1;5
+MV1.101 Measurement 22;MV1.101 Bus 31;NULL;p;MV1.101_Feeder4;5
+MV1.101 Measurement 23;MV1.101 Bus 52;NULL;p;MV1.101_Feeder6;5
+MV1.101 Measurement 24;MV1.101 busbar1.2;NULL;v;MV1.101;5
+MV1.101 Measurement 25;MV1.101 Bus 13;NULL;q;MV1.101_Feeder1;5
+MV1.101 Measurement 26;MV1.101 Bus 31;NULL;q;MV1.101_Feeder4;5
+MV1.101 Measurement 27;MV1.101 Bus 52;NULL;q;MV1.101_Feeder6;5
+MV1.101 Measurement 28;MV1.101 busbar1.1_1;HV1-MV1.101-Trafo1;p;MV1.101;4
+MV1.101 Measurement 29;MV1.101 busbar1.2_1;HV1-MV1.101-Trafo2;p;MV1.101;4
+MV1.101 Measurement 30;MV1.101 busbar1.1_1;HV1-MV1.101-Trafo1;q;MV1.101;4
+MV1.101 Measurement 31;MV1.101 busbar1.2_1;HV1-MV1.101-Trafo2;q;MV1.101;4
+MV1.101 Measurement 32;MV1.101 busbar1.1_1;HV1-MV1.101-Trafo1;i;MV1.101;4
+MV1.101 Measurement 33;MV1.101 busbar1.2_1;HV1-MV1.101-Trafo2;i;MV1.101;4
