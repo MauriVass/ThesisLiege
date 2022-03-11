@@ -1,5 +1,7 @@
 \chapter{Project implementation}
-The project is developed in Pandapower a, Python based, power system analysis tool aimed at automation of static and quasi-static analysis and optimization of balanced power systems \cite{pandapower}.\\
+The project is developed in Pandapower a, Python based, power system analysis tool aimed at automation of static and quasi-static analysis and optimization of balanced power systems \cite{pandapower}.
+
+\section{GYM-ANM}
 The network employed for these experiments is the network used in the paper \cite{gym-anm}; it consists of: one external grid, five buses, one transformer, four lines, three loads, two static generators and one \gls{DES} device.
 
 \begin{figure}[h]
@@ -42,7 +44,7 @@ The network employed for these experiments is the network used in the paper \cit
     \label{fig:net_sit3}
     \end{figure}
     
-\section{Generate dataset}
+\subsection{Generate dataset}
 Pandapower allows running time series simulations of a network. When calling the time series function, a loop starts to iterate for each time step and the power flow of the network is calculated.\\
 For this simulation, a time $\Delta t$ of 15 minutes if used for a temporal window of one year, in total of 35,040 time steps. To be compliant to Pandapower requirements, the time series must be passed to a controller that will change the network's devices values for each loop.\\
 The results in this section are obtained with the following time series:
@@ -83,18 +85,18 @@ After the simulation is run, some output values are exported as \emph{.xlsx} fil
 \end{figure}
     
     
-\section{Voltage lines forecasting}
-\subsection{Splitting the dataset}
+\subsection{Voltage lines forecasting}
+\subsubsection{Splitting the dataset}
 The aforementioned dataset is divided in training, validation and test set in 70, 20 and 10 percent respectively, without a random shuffle before the splitting. This has two main advantages:
 \begin{enumerate}
     \item It ensures that chopping the data into windows of consecutive samples is still possible.
     \item It ensures that the validation/test results are more realistic, being evaluated on the data collected after the model was trained.
 \end{enumerate}
 
-\subsection{Normalization}
+\subsubsection{Normalization}
 The data is normalised subtracting the mean and dividing by the standard deviation of each feature. The mean and standard deviation are computed using the training data so that the models have no access to the values in the validation and test sets.
 
-\subsection{Windowing}
+\subsubsection{Windowing}
 The training, validation and test sets are divided in windows to then fed to the neural network. \\
 The main features of the windows are:
 \begin{itemize}
@@ -103,7 +105,7 @@ The main features of the windows are:
     \item Which features are used as inputs, labels, or both.
 \end{itemize}
 
-The result are obtained using an input window of 12 time steps and an output window of 6 time steps. The offset is 1, this means that the predictions are from time step 13 to 18. The training features are:
+The result are obtained using an input window of 12 time steps (3 hours in the past) and an output window of 6 time steps (1.5 hours in the future). The offset is 1, this means that the predictions are from time step 13 to 18. The training features are:
 \begin{algorithmic}
 \State $[load0\_p, load1\_p, load2\_p, PVgen\_p, Wind gen\_p, L0, L1, L2, L3]$
 \end{algorithmic}
@@ -121,7 +123,7 @@ where $Li$ is the loading in percentage of line $i$.
     \label{fig:net_sit3}
 \end{figure}
 
-\subsection{Training}
+\subsubsection{Training}
 The model used for training is an artificial neural network with two hidden layers with 128 and 64 neurons respectively.\\
 The neural network is trained for 20 epochs with Adam optimizer and early stopping callback.
 
@@ -143,4 +145,73 @@ The neural network is trained for 20 epochs with Adam optimizer and early stoppi
 \noindent Given this voltage forecast, it would be possible to understand if the network risks overloading for the next time steps and proceed accordingly to avoid damaging the network.
 
 
+
+\section{MV Oberrhein}
+\label{sec:MVober}
+The network used for these experiments is the MV Oberrhein network from Pandapower; a generic 20 kV network serviced by two 25 MVA HV/MV transformer stations. The network supplies 141 HV/MV substations and 6 MV loads through four MV feeders. The network layout is meshed, but the network is operated as a radial network with 6 open sectioning points. \\
+To simplify the situation, the network can be divided in 2 independent parts [\href{https://kobra.uni-kassel.de/bitstream/handle/123456789/12005/kup_9783737608725.pdf?sequence=1&isAllowed=y}{ref}].
+
+\begin{figure}[h]
+\centering
+    \includegraphics[height=0.33\linewidth,width=.32\linewidth]{images/MVOberr/Full.png}
+    \includegraphics[height=0.33\linewidth,width=.32\linewidth]{images/MVOberr/Half1.png}
+    \includegraphics[height=0.33\linewidth,width=.32\linewidth]{images/MVOberr/Half2.png}
+\caption{MV Oberrhein network. Used network: middle one \\
+TODO add letters}
+\label{fig:gym_anm_net}
+\end{figure}
+
+The model consist of: one external grid, one transformer, 61, loads and 60 generators.
+
+\subsubsection{Time series}
+The time series used are taken from the Simbench dataset. This database refers to some real distribution networks in Germany in the year 2016; the dataset spans over one year with a $\Delta t$ of 15 minutes (a total of 35,040 time steps).\\
+
+Each element (load or generator) falls under a specific profile that represent the consumption or generation over time.
+
+\begin{figure}[h]
+\centering
+    \includegraphics[width=.9\linewidth]{images/MVOberr/Simbench.PNG}
+\caption{Load and generations profiles. \\
+TODO fix the layout}
+\label{fig:gym_anm_net}
+\end{figure}
+
+In this case, the profiles' distribution is as follows:
+
+\begin{algorithm}[h]
+\State Load elements by type: \{'L2-A': 24, 'H0-C': 5, 'L1-A': 23, 'H0-B': 5, 'H0-A': 4\}
+
+\State{RES elements by type: \{'PV5': 27, 'PV8': 14, 'PV6': 13, 'WP4': 3, 'WP7': 3\}}
+\end{algorithm}
+\noindent where the letters stand for: 'commercial enterprises (G), households (H), agricultural holdings (L) and industrial companies (BL/BW)'. \\
+It is possible to notice a bigger presence of PVs over WPs.
+
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.9\linewidth]{images/MVOberr/BoxPlotLoad.png}
+    \includegraphics[width=.9\linewidth]{images/MVOberr/BoxPlotRes.png}
+\caption{Box plots of load and generation for each profile}
+\label{fig:gym_anm_net}
+\end{figure}
+
+\emph{Is it ok that elements of the same type have the same profile, so same consumption/generation over time?} \\
+\emph{Also from the documentation the values of the profiles are in MW but it looks strange that the values never go above 1MW, is it common that facilities (small or big) consumes less than a 1MW?}
+
+\begin{figure}[h]
+\centering
+    \includegraphics[width=.9\linewidth]{images/MVOberr/Load&Gens.png}
+\caption{Sum of load energy consumption and energy generation over the considered year}
+\label{fig:gym_anm_net}
+\end{figure}
+
+It is possible to notice a higher consumption of energy over the production, especially at the beginning and end of the year, when the sun intensity is not too high.
+
+\begin{figure}[h]
+\centering
+    \includegraphics[width=.9\linewidth]{images/MVOberr/ll.PNG}
+    \includegraphics[width=.9\linewidth]{images/MVOberr/vm.PNG}
+    \includegraphics[width=.9\linewidth]{images/MVOberr/l.png}
+\caption{Results obtained running the time series. The legend is not present since there are many elements}
+\label{fig:gym_anm_net}
+\end{figure}
 
