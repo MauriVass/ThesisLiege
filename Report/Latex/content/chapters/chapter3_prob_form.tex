@@ -1,12 +1,47 @@
 \chapter{Problem formulation}
+\label{chapter4}
+%phd report
+%https://roadnighttaylor.co.uk/news/what-is-active-network-management/
+The principle of active network management \gls{ANM} is to address congestion and voltage issues via short-term decision making policies \cite{ANMQuentin}. \\
+\gls{ANM} creates a smarter network infrastructure providing automated control of various components in the network and provides the information needed to ensure that every device performs in an optimal manner. This automated control allows grid companies to avoid reinforcing the network with expensive upgrades, so reducing the costs.
+Indeed, in case of energy generation from the renewable devices higher than what a single line can handle, a grid company, to avoid congestions and possible overvoltages, has three main options:
+\begin{itemize}
+    \item Replace the existing line with a line that can handle a higher voltage.
+    \item Add another parallel line.
+    \item Use \gls{ANM}.
+\end{itemize}
+The first two solution require some infrastructure investment that can be expensive and problematic, especially in the case of overhead or underground lines.\\
+The solution with \gls{ANM} does not require construction cost for the grid company. So to keep the network working, in this case, the output of the renewable devices would be curtailed to reduce lines' overloading. \\
 
-A distribution network can be represented as a direct graph $\mathcal{G}(\mathcal{N},\mathcal{E})$, where \gls{N} is a set of positive integers representing the buses (or nodes) in the network, \gls{E} $\subseteq \mathcal{N} \times \mathcal{N}$ is the set of directed edges linking two buses together. The notation \gls{e} $\in \mathcal{E}$ refers to the directed edge with sending bus $i$ and receiving bus $j$. Each bus might be connected to several devices, which may inject or withdraw power from the grid. The set of all devices is denoted by \gls{D} that can be either loads \gls{L} or generators \gls{G}. \\
+In these references, \gls{ANM} schemes maintain the system within operational limits by relying on the curtailment of the generator devices, \glspl{PV}, \glspl{WP} and other \gls{DER} devices. \\
+Curtailment of renewable energy may be considered as counter-intuitive on the environmental point of view, and it may be considered as last option. Indeed, this process can slow down the switch to clean energy, because of the lost of the curtailed energy. \\
+
+In this mindset, \gls{ANM} could also be used to control flexible loads and reduce the curtailment effects. These flexible loads, also known as virtual batteries, such as water heaters, air conditioning systems, electric vehicles, can be controlled to be turned on if the energy production is higher than the energy consumption so to avoid curtailment on the generators \cite{flexibleloads}. \\
+Another way to reduce the energy curtailment is to use Flexible Alternating Current Transmission System (\gls{FACTS}) devices. They offer some
+level of power flow control and enhance the transfer capability over the existing network. This flexibility can be utilized for congestion
+mitigation and renewable energy integration. Particularly, \gls{FACTS} devices allow controlling all parameters that determine active and reactive power transmission: nodal voltages magnitudes and angles and line reactance. These devices replace the mechanical switches with semiconductor switches allowed much faster response times. One problem with these devices is the cost a system operator should sustain to implement them in the network \cite{facts}.
+
+\section{Problem statement}
+This thesis will focus on \gsl{ANM} and the problem faced by a system operator to maintain the network within its operational limits. In particular, the \gsl{DSO} will evaluate whether in a given moment there will be a voltage problem and to apply curtailment to generator devices to maintain the voltage inside a safe range.\\
+
+The \gls{DSO} knows some information about the network: 
+\begin{itemize}
+    \item The network topology: the number of lines, buses, loads and the generators, the lines' length, the distance between buses, and the distance between each load and generator from the external grid. Moreover, lines' impedance are known.
+    \item The active and reactive power of the loads at each time step (some measure may be missing).
+    \item The type of \gsl{DER} device, their active power for each time step and the maximum power they can generate.
+\end{itemize}
+
+%https://arxiv.org/ftp/arxiv/papers/2102/2102.05657.pdf
+% Problem formulation
+The time horizon covered in this problem is considered by checking that the system works under the right conditions over a set of $t \in [1,T]$ discrete periods.\\
+
+[\emph{old}] A distribution network can be represented as a direct graph $\mathcal{G}(\mathcal{N},\mathcal{E})$, where \gls{N} is a set of positive integers representing the buses (or nodes) in the network, \gls{E} $\subseteq \mathcal{N} \times \mathcal{N}$ is the set of directed edges linking two buses together. The notation \gls{e} $\in \mathcal{E}$ refers to the directed edge with sending bus $i$ and receiving bus $j$. Each bus might be connected to several devices, which may inject or withdraw power from the grid. The set of all devices is denoted by \gls{D} that can be either loads \gls{L} or generators \gls{G}. \\
 Several variables are associated with each bus $i \in \mathcal{N}$: a bus voltage $\mathcal{V}_i$, a bus current injection $I_i$, an active power injection $P_i$ and reactive power injection $Q_i$. The complex powers $S_i$, $S_d$ $\in \mathbb{C}$ injected into the network at bus $i$, or device $d$, can be obtained by the relation $S_i = P_i + \mathbf{i}Q_i$ or $S_d = P_d + \mathbf{i}Q_d$. \\
 Similarly, variables $I_{ij}$, $P_{ij}$, $Q_{ij}$ and $S_{ij}$ refer to the direct flow of the quantities in branch $e_{ij}$ as measured at bus $i$ \cite{gym-anm}.
 
 \section{Problem statement}
 \label{sec:ProbStat}
-With the increasing number of renewable energy generators entering the power distribution systems, more and more stress is placed on the networks. This energy produced by the generators can increase the voltage in certain points of the network, causing blackouts and even worse damaging the network's transmission lines. These are interruptions of the energy distribution and they must be avoided. \\
+With the increasing number of renewable energy generators entering the power distribution systems, more and more stress is placed on the networks. This energy produced by the generators can increase the voltage in certain points of the network, causing blackouts or damaging the network's transmission lines. These are interruptions of the energy distribution, and they must be avoided. \\
 
 A possible solution to this problem is to control the renewable energy generators to produce less than what they could have produced; known as curtailment process. \\
 In a distribution network, there are some information for the elements connected to the grid, like active and reactive power, magnitude voltage value and so on. These values are recorded and expressed as a multi-dimentional time series.\\
@@ -19,7 +54,7 @@ The problem can be solved as a classification or regression problem:
     H = - \frac{1}{N} \sum_{i=1}^{N} y_i \log{(p(y_i))} + (1 - y_i) \log{(1 - p(y_i))} 
     \]
     where $y_i$ is the real label, $p(y_i)$ is the predicted probability that there will be a voltage problem and N is the number of inputs.
-    \item for the regression problem, the output of the \gsl{ANN} will be the voltage forecast for each buses for the next $n$ time steps. Also for this problem, many loss functions can be used, for example a \gls{MAE} loss function, calculated as follows:
+    \item for the regression problem, the output of the \gls{ANN} will be the voltage forecast for each buses for the next $n$ time steps. Also for this problem, many loss functions can be used, for example a \gls{MAE} loss function, calculated as follows:
     \[
     MAE = \frac{1}{T \cdot N} \sum_{t=1}^{T} \sum_{i=1}^{N} |y_{t,i} - \hat{y}_{t,i}|
     \]

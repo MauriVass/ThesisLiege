@@ -129,7 +129,7 @@ The neural network is trained for 20 epochs with Adam optimizer and early stoppi
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=.9\linewidth]{images/GYM-ANM/DATASET PLOTS/lines_forecasting.png}
+    \includegraphics[width=.5\linewidth]{images/GYM-ANM/DATASET PLOTS/lines_forecasting.png}
     \caption[GYM-ANM forecasting]{Forecasting of the values \\
     TODO: denormalise the data for visualisation purposes. Decrease height or split it: too large for this template (it messes up with the layout)}
     \label{fig:net_sit3}
@@ -161,18 +161,37 @@ TODO add letters}
 \label{fig:gym_anm_net}
 \end{figure}
 
-The model consist of: one external grid, one transformer, 61, loads and 60 generators.
+The model consist of: one external grid, one transformer, 70 buses, 61 loads and 60 renewable generators.
 
-\subsubsection{Time series}
-The time series used are taken from the Simbench dataset. This database refers to some real distribution networks in Germany in the year 2016; the dataset spans over one year with a $\Delta t$ of 15 minutes (a total of 35,040 time steps).\\
+\subsection{Simbench database}
+\label{simdata}
+\emph{Q: Better to move it to the 'Background' chapter?}\\
+The time series dataset used is taken from the Simbench database. This database refers to some real distribution networks in Germany in the year 2016. SimBench includes multiple time series for one year with 15 min resolution for load, generation and storage units. All time series came as active and reactive power. The time series were normalized, reducing the total number of required time series to a reasonable number, while retaining the possibility to model individual nominal power \cite{Simbenchds0}. All active power values are normalized to the maximum active power value.\\
 
-Each element (load or generator) falls under a specific profile that represent the consumption or generation over time.
+Power utilities commonly use generic load profiles to group commercial customers with similar load shapes into categories or standard load profiles (\glspl{SLP}). \\
+The most commonly used profiles set is developed by the German Association of Energy and Water Industries (BDEW). It comprises eleven aggregated profiles, one for residential consumers (H0), three for agricultural (L0-L3), and seven for commercial consumers with different opening hours (G0-G6). They are differentiated into workdays, Saturdays and Sundays as well as three seasonal categories winter, summer, and transitional. The set also includes two profiles for street lightning (B0) and band load (G7). \\
+The generation time series for photovoltaics (\glspl{PV}), wind energy and biomass generated for the SimBench dataset are created using the agent-based simulation tool for optimized grid expansion planning SIMONA. SIMONA's power plant models receive real weather data of Germany from the German Weather Service in 2011 for Wind and 2012 for \gls{PV} time series as input data. \\
+For 2011 and 2012 generation data, the time axis is adjusted to 2016 by shifting days so that they correspond to the nearest weekday\cite{Simbenchds1}.\\
 
 \begin{figure}[h]
 \centering
-    \includegraphics[width=.9\linewidth]{images/MVOberr/Simbench.PNG}
-\caption{Load and generations profiles. \\
-TODO fix the layout}
+    \includegraphics[width=.8\linewidth]{images/MVOberr/SimBench time series types.PNG}
+\caption{Overview of the SimBench time series type}
+\label{fig:SBtimeseriestype}
+\end{figure}
+
+The load time series were distinguished between real measured accumulated, highlighted with a dash, and simulated individual consumers, marked with a solid frame in Figure \ref{fig:SBtimeseriestype}. \\
+
+\subsection{Time series}
+\label{ts}
+Some time series from the Simbench database are taken to adapt to the number of loads and \glspl{DER} of the MV Oberrhein network in consideration. \\
+
+As said, each element (load or generator) falls under a specific profile type that represent the consumption or generation over time.
+
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.8\linewidth]{images/MVOberr/SimBench load and generation time series.PNG}
+\caption{Load and generations profiles}
 \label{fig:gym_anm_net}
 \end{figure}
 
@@ -183,19 +202,36 @@ In this case, the profiles' distribution in the Pandapower network is as follows
 
 \State{RES elements by type: \{'PV5': 27, 'PV8': 14, 'PV6': 13, 'WP4': 3, 'WP7': 3\}}
 \end{algorithm}
-\noindent where the letters stand for: 'commercial enterprises (G), households (H), agricultural holdings (L) and industrial companies (BL/BW)'. \\
-It is possible to notice a bigger presence of PVs over WPs.
+\noindent where the letters stand for: commercial enterprises (G), households (H), agricultural holdings (L) and industrial companies (BL/BW)'; with last letters –A to C indicating low consumption, -M medium consumption, and -H high consumption customers. \\
+For the \gsl{DES} device there are photovoltaics \glspl{PV} and wind parks \glspl{WP}. It is possible to notice a bigger presence of \glspl{PV} over \glspl{WP}.\\
+
+The loads and \glspl{DER} are chosen so that different profile types are present.
+
+
 
 \begin{figure}[H]
 \centering
-    \includegraphics[width=.9\linewidth]{images/MVOberr/BoxPlotLoad.png}
-    \includegraphics[width=.9\linewidth]{images/MVOberr/BoxPlotRes.png}
-\caption{Box plots of load and generation for each profile}
+    \includegraphics[width=.7\linewidth]{images/MVOberr/BoxPlotLoad.png}
+    \includegraphics[width=.7\linewidth]{images/MVOberr/BoxPlotRes.png}
+\caption{Box plots of load and generation for each profile type}
 \label{fig:gym_anm_net}
 \end{figure}
 
-\emph{Is it ok that elements of the same type have the same profile, so same consumption/generation over time?} \\
-\emph{Also from the documentation the values of the profiles are in MW but it looks strange that the values never go above 1MW, is it common that facilities (small or big) consumes less than a 1MW?}
+\emph{Q: Is it ok that elements of the same type have the same profile, so same consumption/generation over time? R: add some noise} \\
+\emph{Q: Also from the documentation the values of the profiles are in MW, but it looks strange that the values never go above 1MW, is it common that facilities (small or big) consumes less than a 1MW? R: it depends on the device. Actually, the values are normalized, so a scaling factor can be used to change the values.} \\
+
+Since the profiles are equal for every element of that type, some noise is added to increase randomness. In particular, the noise added is a scaling factor in the range [0.85,1.15]. The scaling factor allows avoiding negative values in case of a value lower than 1; subtraction may result in a negative value of reactive power for a particular load. \\
+
+With a similar approach, it is possible to easily create different cases, changing the scaling factors.
+
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.9\linewidth]{images/MVOberr/Cases.PNG}
+\caption{Possible cases. [\href{https://www.cired-repository.org/bitstream/handle/20.500.12455/526/CIRED \%202019 \%20- \%20139.pdf?sequence=1&isAllowed=y}{ref}] }
+\label{fig:gym_anm_net}
+\end{figure} 
+
+
 
 \begin{figure}[h]
 \centering
@@ -204,14 +240,58 @@ It is possible to notice a bigger presence of PVs over WPs.
 \label{fig:gym_anm_net}
 \end{figure}
 
-It is possible to notice a higher consumption of energy over the production, especially at the beginning and end of the year, when the sun intensity is not too high.
+It is possible to notice a higher consumption of energy over the production, especially at the beginning and end of the year, when the sun intensity is not too high. \\
 
-\begin{figure}[h]
+\subsubsection{Case: High generation}
+Some cases are tested using scaling factors for load and generation. The high resolution case refers to scaling factors, as follows:
+\begin{algorithm}[h]
+    \State {scale\_factor\_load = 0.5} 
+    
+    \State {scale\_factor\_sgen = 3.5}
+\end{algorithm}
+
+\begin{figure}[H]
 \centering
-    \includegraphics[width=.9\linewidth]{images/MVOberr/ll.PNG}
-    \includegraphics[width=.9\linewidth]{images/MVOberr/vm.PNG}
-    \includegraphics[width=.9\linewidth]{images/MVOberr/l.png}
-\caption{Results obtained running the time series. The legend is not present since there are many elements}
+    \includegraphics[width=.7\linewidth]{images/MVOberr/High gen.png}
+\caption{Case high generation. Voltage buses results obtained running the time series. \emph{For a faster execution, only 7 days (672 time steps) are considered. Time step 0 correspond to 00:00 of 01/01/2016.}}
 \label{fig:gym_anm_net}
 \end{figure}
 
+From the plot above, it is possible to see that there are few overvoltage problems and many under voltage problems. A time step is critical when the voltage of any bus is out of the boundaries $V_i < v^{\text{min}}$ (under voltage) or $V_i > v^{\text{max}}$ (over voltage), where $v^{\text{min}}$ is the minimum acceptable voltage, 0.95, and $v^{\text{max}}$ is the maximum one, 1.05. \\
+The problems are highlighted in the following plot.
+
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.8\linewidth]{images/MVOberr/High gen problems.png}
+\caption{In this plot, the maximum and minimum values found for each time step and plotted, so for each time step there are two values representing the highest and lowest value among each bus. The colours, blue and red, represent the normal or critical condition}
+
+ \end{figure}
+
+
+
+
+
+
+\subsubsection{Case: High load}
+The high load case refers to scaling factors, as follows:
+\begin{algorithm}[h]
+    \State {scale\_factor\_load = 1} 
+    
+    \State {scale\_factor\_sgen = 0.1}
+\end{algorithm}
+
+\begin{figure}[h]
+\centering
+    \includegraphics[width=.7\linewidth]{images/MVOberr/High load.png}
+\caption{Case high load. Voltage buses results obtained running the time series}
+\label{fig:gym_anm_net}
+\end{figure}
+
+In this case, there are only under voltage problems. \\
+The problems are highlighted in the following plot.
+
+\begin{figure}[h]
+\centering
+    \includegraphics[width=.8\linewidth]{images/MVOberr/High load problems.png}
+    \caption{Same as above, the maximum and minimum values found for each time step and plotted, so for each time step there are two values representing the highest and lowest value among each bus. The colours, blue and red, represent the normal or problem condition.}
+\end{figure}
