@@ -22,13 +22,13 @@ In particular, it is useful and needed to reduce the output of renewable generat
 Power transmission systems consist of an interconnected set of overhead lines, cables and related equipment that are used for the transfer of electricity at high voltage levels
 between supply points and load points, such as customers and other electric systems. \\
 
-In the traditional power system, electricity is produced in large, centralised power plants. The electricity is then transferred to the loads using the transmission and distribution networks. High and extra-high voltages are associated with supply transmission from the power plant. The reason for transmitting power at high and extra-high voltage levels is to increase efficiency. The lower current accompanying the high voltage transmission allows for the use of thinner, lighter-weight cables. This reduces the cost in the tower and electrical line construction. High and extra-high voltages refer to voltage magnitudes $35 kV \leq V < 220 kV$ for the high voltage and $V \geq 220 kV$ for the extra high voltage. (\emph{Symbols problem: V for voltage magnitude and V for volts?})\\
-Large industrial complexes and factories that require a substantial amount of power often utilise medium supply voltages. The high voltage coming from the power plant is sent to the primary substation, this can supply step-down power to secondary substations or to single buildings. Secondary substations can have transformers to further step down the power, and they are generally located in areas that can serve one or more buildings. Medium voltages refer to voltage magnitude $1 kV \leq V < 35 kV$. \\
-Then the medium supply power is step down again to a low voltage and sent to the domestic household or home appliances power supply. Low voltages refer to voltage magnitude $V < 1 kV$. \\
+In the traditional power system, electricity is produced in large, centralised power plants. The electricity is then transferred to the loads using the transmission and distribution networks. High and extra-high voltages are associated with supply transmission from the power plant. The reason for transmitting power at high and extra-high voltage levels is to increase efficiency. The lower current accompanying the high voltage transmission allows for the use of thinner, lighter-weight cables. This reduces the cost in the tower and electrical line construction. In Belgium, High and extra-high voltages refer to voltage magnitudes $30 kV \leq V < 380 kV$ for the high voltage and $V \geq 380 kV$ for the extra high voltage \cite{elia}. (\emph{Symbols problem: V for voltage magnitude and V for volts?})\\
+Large industrial complexes and factories that require a substantial amount of power often utilise medium supply voltages. The high voltage coming from the power plant is sent to the primary substation, this can supply step-down power to secondary substations or to single buildings. Secondary substations can have transformers to further step down the power, and they are generally located in areas that can serve one or more buildings. Medium voltages refer to voltage magnitude $0.4 kV \leq V < 30 kV$. \\
+Then the medium supply power is step down again to a low voltage and sent to the domestic household or home appliances power supply. Low voltages refer to voltage magnitude $V < 0.4 kV$. \\
 \begin{figure}[H]
 \centering
     % \includegraphics[width=.9\linewidth]{images/DN/HighMediumLowV.png}
-    \includegraphics[width=.25\linewidth]{images/DN/DN.PNG}
+    \includegraphics[width=.25\linewidth]{images/Background/DN/DN.PNG}
 \caption[Power network distribution]{Power network distribution \cite{EPD}}
 % \label{fig:gym_anm_net}
 \end{figure}
@@ -61,13 +61,12 @@ Then the medium supply power is step down again to a low voltage and sent to the
 \label{powerflow}
 %Mathmatical formulation: https://www.engineering.iastate.edu/~jdm/ee458_2011/PowerFlowEquations.pdf
 %Simple discussion: https://www.pterra.com/power-flow-analysis/power-flow-solution-techniques/
-An important calculation in power system networks is to solve the optimal power flow (\gls{OPF}). \\
-
-The power flow is essential for planning purposes: besides the calculation of electrical characteristics of the power system, power flow analysis can also help to optimize the system operating conditions and minimize the power losses.
+An important procedure in power system networks is to perform a numerical analysis to determine the electrical state of the network, starting from some parameters that are known. This analysis is called optimal power flow (\gls{OPF}).\\
+The \gls{OPF} is an optimization problem essential for planning purposes: besides the calculation of electrical characteristics of the power system, power flow analysis can also help to optimize the system operating conditions, minimize the power losses and determine control actions to satisfy the demand while meeting operational constraints.
 
 \subsubsection{Buses}
 The power flow gives information about the steady state of the entire system such as voltage, real and reactive power, line loadings and power injection.\\
-Each bus is associated with four quantities: voltage magnitude \gls{V}, phase angle \gls{Vangle}, real power \gls{P} and reactive power \gls{Q}.
+Each bus is associated with four quantities: voltage magnitude \gls{V}, phase angle \gls{angleV}, real power \gls{AP} and reactive power \gls{Q}.
 Depending on the quantity that have been specified, buses in the power system are classified into the following three different types:
 \begin{itemize}
     \item \textbf{Slack bus}. It is taken as reference where the magnitude and phase angle of the voltage are specified. Slack bus magnitude considers 1 \gls{pu} and phase angle 0 degrees. This bus provides the additional real and reactive power to supply the transmission losses, since there are unknown until the final solution is obtained.
@@ -78,42 +77,61 @@ Depending on the quantity that have been specified, buses in the power system ar
 \end{itemize}
 
 \subsubsection{Solution techniques}
-Solution of the power flow is based on Ohm’s Law, which is the relationship between voltages and currents. For a network, it can be expressed in matrix notation as follows:
+Defining and solving the power flow equations are the main tasks in load flow analysis. \\
+The definition of the power flow equations is based on Ohm’s Law, which is the relationship between voltages and currents. For a network, it can be expressed in matrix notation as follows:
 \[
-    \mathbf{I} = \mathbf{Y} \times \mathbf{V}
+    \mathbf{Y} \times \mathbf{V} = \mathbf{I}
 \]
 \[
  \begin{bmatrix}
- I_1 \\ I_2 \\ \vdots  \\ I_N
- \end{bmatrix}
- = 
- \begin{bmatrix}
- Y_{1,1} & \cdots & Y_{1,N} \\
- Y_{2,1} & \cdots & Y_{2,N} \\
- \vdots & \ddots & \vdots \\
- Y_{N,1} & \cdots & Y_{N,N} \\
+ Y_{1,1} & \quad & \cdots & \quad & Y_{1,N} \\
+ &  &  \\
+ Y_{2,1} & \quad & \cdots & \quad & Y_{2,N} \\
+ &  &  \\
+ \vdots & \quad & \ddots & \quad & \vdots \\
+ &  &  \\
+ Y_{N,1} & \quad & \cdots & \quad & Y_{N,N} \\
  \end{bmatrix}
  \times
  \begin{bmatrix}
- V_1 \\ V_2 \\ \vdots \\ V_N
+ V_1 \\ \\ V_2 \\ \\ \vdots \\ \\ V_N
+ \end{bmatrix}
+ =
+ \begin{bmatrix}
+ I_1 \\  \\ I_2 \\ \\ \vdots \\  \\ I_N
  \end{bmatrix}
 \]
 
 \noindent Where:
 \begin{itemize}
-    \item \textbf{I} is an array of bus current injections (positive value when generation, and negative value when load)
     \item \textbf{Y} is the bus admittance matrix
     \item \textbf{V} is an array of bus voltages
+    \item \textbf{I} is an array of bus current injections (positive value when generation, and negative value when load)
 \end{itemize}
 
-The power flow formulation is based on the application of Kirchhoff’s laws to meshed electric networks. The basic concept is that the sum of all flows into each and every node should be equal to zero. The flows are in complex form, they consist of real and reactive components, or \glspl{W} and \glspl{VAR}. If there are n nodes, then there are n complex equations. The resulting system of equations is non-linear, making the calculations not easy. Solution methods are primarily iterative with the objective of reducing the sum of flows in all nodes to some acceptably small value known as the mismatch tolerance. \\
+The power flow formulation is based on the application of Kirchhoff’s laws to meshed electric networks. The basic concept is that the sum of all flows into each and every node should be equal to zero.\\
+The flows are in complex form, they consist of real and reactive components, or \glspl{W} and \glspl{VAR}. If there are n nodes, then there are n complex equations. The resulting system of equations involves non-linear relationships, making the calculations not easy. Solution methods are primarily iterative with the objective of reducing the sum of flows in all nodes to some acceptably small value known as the mismatch tolerance. \\
 
-All these iterative methods and follow the same basic concept: they assume starting values for the dependent variables, primarily voltage at nominal voltage magnitude (i.e. 1 \gls{pu}) and zero phase angle; compute new values for those voltages using the nodal network equation or a numerical approximation and repeat until the convergence criteria are met.
+All these iterative methods follow the same basic concept: they assume starting values for the dependent variables, primarily voltage at nominal voltage magnitude (i.e. 1 \gls{pu}) and zero phase angle; compute new values for those voltages using the nodal network equation or a numerical approximation and repeat until the convergence criteria are met. \\
+
+The solution has to satisfy some network constrains, in particular:
+\begin{itemize}
+    \item Active and reactive power balance: the sum of the power injections (that can be positive or negative) at each bus must be equal to 0. This, as said, results from the Kirchhoff’s laws.
+    
+    \item Voltage limits: the voltage magnitude at each bus and the voltage phase difference between two directly connected buses are bounded by some specific values to maintain safe operation.
+    
+    \item Thermal limits on transmission lines: the flow in each transmission line is limited due to the thermal limit of the conductors.
+    
+    \item Generator active and reactive power limits: the generating units have    generally a minimum and maximum level of output power.
+    
+    \item Generator ramping limits: the output power of a generating unit can not be instantaneously increased or decreased. The operator must take into account the ramping limits of the generators.
+\end{itemize}
 
 \subsubsection{Convergence}
-Convergence is the state when all nodes have met the mismatch tolerance. The main power flow solution methods are:
+The \gls{OPF} is a non-linear and non-convex optimization problem, with a large number of constraints (both equality and inequality constraints) and variables (that can be both continuous and discrete). It is therefore a hard problem, whose solution cost increase exponentially, particularly with the increasing size of the network. Moreover, there is no guarantee to find the global optimum. \\
+When a solution exists and it is reached, it is said that the network has converged. Convergence is the state when all nodes have met the mismatch tolerance. The main power flow solution methods are:
 \begin{itemize}
-    \item Gauss-Seidel method updates the     voltage one node at a time until all nodes are within the mismatch tolerance.
+    \item Gauss-Seidel method updates the voltage one node at a time until all nodes are within the mismatch tolerance.
     
     \item Newton-Raphson method uses a first order expansion of the power flow equations to approach convergence. Generally faster than the Gauss-Seidel method and able to converge to small tolerances. However, the method is prone to the phenomenon of \textbf{divergence}, when mismatches increase instead of decrease from iteration to iteration. This occurs when the solution vector exits outside the feasible solution space at any point during the algorithm. Once outside feasible space, the solution gradient tends to further increase mismatches, leading to solutions that “blow-up” in the numerical sense. This method requires calculating the first order approximation matrix (known as the Jacobian). \\
     Several variations on the Newton-Raphson are in use, including:
@@ -126,7 +144,7 @@ Convergence is the state when all nodes have met the mismatch tolerance. The mai
 \end{itemize}
 
 \subsubsection{Divergence}
-Divergence is the condition of the power network when the numerical solution can not be found anymore due to some possible issues:
+Divergence is the condition of the power network when the numerical solution can not be found any more due to some possible issues:
 
 \begin{itemize}
     \item the power system is going to “blow-up.”
@@ -158,6 +176,9 @@ These factors depend on variable such as reliability of individual items of equi
 For reliability purposes, it is important to know the maximum voltage that can be
 transferred with transmission lines to meet the anticipated load demand. It is also important to know the levels of power through various transmission lines under certain contingency outage conditions to maintain the continuity of service. Knowledge of power flows and voltage levels under normal operating conditions are necessary in order to determine fault currents and the ensuing consequences on the stability of the system \cite{eps}. \\
 
+
+[American National Standards Institute (ANSI) C84.1-2016 [4], voltage standards for service voltage limits are classified as Range A and Range B limits. The voltage between 0.950 p.u. and 1.050 p.u. of nominal voltage lies under Range A, and the voltage between 0.917 p.u. and 1.058 p.u. of nominal voltage for 240 V service voltage lies under Range B. Note that the voltage can be within Range B for only a short duration and frequency, and thus corrective measures are necessary to constrict]
+
 %Determining power flow requires measurements of some power system conditions; utilities measure a combination of quantities such as voltage magnitude \gls{V}, real power \gls{P} and reactive power \gls{Q} of the elements connected to the network. 
 
 \subsubsection{Reliability criteria}
@@ -167,6 +188,7 @@ The goal of a distribution system operator (\gls{DSO}) is to ensure a reliable s
 The European \gls{GARPUR} project (\textbf{G}enerally \textbf{A}ccepted \textbf{R}eliability \textbf{P}rinciple with \textbf{U}ncertainty modelling and through probabilistic \textbf{R}isk assessment) developed reliability management approaches and criteria. One of these criteria used by system operators is the N-1 criterion. \\
 
 The basic principle of N-1 security in network planning states that if a component, for example a transformer or circuit, should fail or be shut down in a network operating at the maximum levels of transmission and supply, the network security must still be guaranteed. This means that the safety of the system is guaranteed and the spreading of the failure is avoided. \\
+It is possible that there may be another contingency before restoring the network after the fail of one element, this criterion is known as N-1-1 criterion.  \\
 
 With the increasing of network complexity more than one element may fault, for this reason there exists other levels of reliability, like the N-2 criteria. In this case, even if in the network two components fail, the network security is guaranteed. \\
 This N-2 criteria requires much more computational power since, the system operator must calculate what happens to the network for any combination of two fault elements. So, the problem becomes a combination problem, where the possible combination are given by: $N \choose 2$, with $N$ the number of elements in the network. \\
@@ -175,5 +197,102 @@ In general, the calculation can be extended to any generic $k$ elements, but the
 
 % \section{Power system voltage managment}
 
+\section{Pandapower}
+\label{ch:pandapower}
+This thesis project will be developed with the help of Pandapower. \\
+Pandapower is a Python based power system analysis tool aimed at automation of static and quasi-static analysis and optimization of power systems \cite{pandapower}. \\
+Pandapower is a powerful tool that allows to easily create a model for any power network using customizable predefined data structures, it can solve the \gls{OPF} problems, perform the state estimates, topological graph searches and diagnose the system for possible errors.
+
+\subsection{Data structure}
+Pandapower is based on a tabular data structure, where every element type is represented by a table that holds all parameters for a specific component. After the calculation of the power flow, a result table, which contains the element specific results of the different analysis methods, is added to the structure. \\
+The tabular data structure is based on the Python library pandas. It allows storing variables of any data type, so that electrical parameters can be stored together with status variables and meta-data, such as names or descriptions. The tables can be easily expanded and customized by adding new columns without influencing the Pandapower functionality. All inherent pandas methods can be used to efficiently read, write and analyse the network and results data. \\
+
+A Pandapower network is a Python dictionary that holds all information about the network. Most importantly, it includes element and a result tables for each element type, such as line, transformer, switch, loads. The element table holds all input parameters that are specified by the user, while the result table is used to store the results of the power flow calculation. Input and output parameters are identified by the same index in both tables \cite{pandapower}.
+
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.6\linewidth]{images/Background/Pandapower/Pandapower_net.pdf}
+\caption{Pandas data frame representation of the Pandapower network}
+% \label{fig:gym_anm_net}
+\end{figure}
 
 
+% \subsection{Network models}
+% Pandapower allows to use different type of elements.
+
+\subsection{Network models}
+There are two main ways of how a power system can be defined.
+A commonly used approach is the bus-branch model (BBM), which defines the network as a collection of buses which are connected by generic branches. Branches are modelled with a predefined equivalent circuit and are used to model multiple elements connected to that branch (multi-pole), like lines or transformers. Buses are attributed with power injections to model single-pole elements like loads, generators or capacitor banks. Since the BBM is an accurate mathematical representation of the network, electric equations for power systems analysis can be directly derived from it, but the need to calculate the impedances for each branch and summed power injections at each bus manually can be cumbersome and error-prone, especially for complex elements. \\
+Instead of a BBM, Pandapower uses an element-based model (EBM) to model electric grids. An element is either connected to one or multiple buses and is defined with characteristic parameters. This allows defining the network parameters, such as length and relative impedance for lines, or short circuit voltage and rated apparent power for transformers. While BBM allows only the definition of a summed power injection at each bus, single-pole elements (such as load or generation elements) can be connected to buses independently. This also allows connecting multiple elements at one bus. The element models are then processed internally with the appropriate equivalent circuits to derive a mathematical description of the grid \cite{pandapower}.
+
+\subsection{Optimal power flow}
+The power flow is the most important electric analysis function for power system planning. It allows calculating the current flows and voltages in the network. \\
+The Pandapower power flow solver is based on the Newton-Raphson method. The implementation is based on PYPOWER Python library. To solve the \gls{OPF}, the bus constraints include maximum and minimum voltage magnitude, active and reactive power limits can be defined for PV and slack-elements like external grids and generators, but also for PQ-elements, such as loads and static generators. \\
+After defining all the network elements, to run the power flow solver it is just need to execute the command: 
+
+\begin{algorithm}[h]
+\state pandapower.runpp(net, ...)
+\end{algorithm}
+
+\noindent this function takes as input the Pandapower network data structure and some other optional values (for example the algorithm solver, max number of iterations, tolerance and so on). \\
+
+\noindent Internally, Pandapower solves the following optimization problem:
+
+\begin{align*}
+    \min &\sum_{i \: \in \: gen, sgen, load, external grid} P_i \cdot f(P_i) \\
+        \textrm{s.t.} \\
+        & \text{load flow equations} \\
+        & \text{branch constraints} \\
+        & \text{bus constraints} \\
+        & \text{operation power flow equations}
+\end{align*}
+
+\noindent where $P_i$ is the active power of any element and $f()$ is the cost function. Few example of the possible constrains are: 
+\begin{align*}
+        & P_{min,i} \leq P_{g} \le P_{max,i}, \; g \in gen \\
+        & Q_{min,i} \leq Q_{g} \le Q_{max,i}, \; g \in gen \\
+        & V_{min,i} \leq V_{g} \le V_{max,i}, \; i \in bus
+\end{align*}
+
+\noindent It is possible to customize the cost function and choosing between a piece-wise or polynomial cost function. Detailed information about the optimization problem, cost function and network constrains are available in the Pandapower documentation \cite{pandapower2}. \\
+
+After running the power flow calculation, new tables are added to the network data frame.
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.6\linewidth]{images/Background/Pandapower/Pandapower_resnet_big.pdf}
+\caption{Pandas data frame representation of the Pandapower network after the power flow calculation}
+% \label{fig:gym_anm_net}
+\end{figure}
+
+\subsection{Time series}
+Pandapower allow running time series analysis for a given network. There are two main requirements for time series calculations:
+\begin{itemize}
+    \item a Pandapower network
+    \item some time series (in a pandas data frame for example)
+\end{itemize}
+
+To execute the time series calculation, the loads, generators and other elements' active and reactive power time series have to be passed to a controller that will be in charge to change the elements' values according to the time series. \\
+
+The time series calculation can be run with the command: 
+\begin{algorithm}[h]
+\state pandapower.timeseries.run\_time\_series.run\_timeseries(net, ...)
+\end{algorithm}
+
+\noindent this command will start a loop that iterates over every \textbf{time\_step}. For each step, a control loop is started for each controller by \textbf{run\_control}. The controller updates the elements' values at each step with the values given in the time series.
+
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.4\linewidth]{images/Background/Pandapower/run_timeseries_loop.pdf}
+\caption{Pandapower time series calculation loop \cite{pandapowerts}}
+% \label{fig:gym_anm_net}
+\end{figure}
+
+After each step, the elements' values are stored in an output writer object and this allows, after the full calculation is finished, to easily save the values on disk.
+
+\subsection{Other functionality}
+Pandapower has some other features:
+\begin{itemize}
+    \item Predefined Networks. In addition to creating custom networks through the application programming interface (\gls{API}), 66 predefined, published test and benchmark networks can be directly accessed through Pandapower. One of these networks, MV Oberrhein, is the one used in this thesis.
+    \item Plotting features. Pandapower comes with extensive plotting features using the Matplotlib library. All Pandapower elements can be translated into different Matplotlib collections that can be customized with respect to shape, size and colour to allow highlighting and create individual network plots. It is also possible to use colour maps to codify information, like the loading of lines or the voltage at buses.
+    \item Converter. Pandapower includes converters in order to export a Pandapower grid as a MATPOWER or PYPOWER casefile or the other way.
+\end{itemize}

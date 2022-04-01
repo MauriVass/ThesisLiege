@@ -2,7 +2,7 @@
 The project is developed in Pandapower a, Python based, power system analysis tool aimed at automation of static and quasi-static analysis and optimization of balanced power systems \cite{pandapower}.
 
 \section{GYM-ANM}
-The network employed for these experiments is the network used in the paper \cite{gym-anm}; it consists of: one external grid, five buses, one transformer, four lines, three loads, two static generators and one \gls{DES} device.
+[\emph{Old part, you can skip this section and jump to \ref{sec:MVober}}] The network employed for these experiments is the network used in the paper \cite{gym-anm}; it consists of: one external grid, five buses, one transformer, four lines, three loads, two static generators and one \gls{DES} device.
 
 \begin{figure}[h]
 \centering
@@ -166,7 +166,7 @@ The model consist of: one external grid, one transformer, 70 buses, 61 loads and
 \subsection{Simbench database}
 \label{simdata}
 \emph{Q: Better to move it to the 'Background' chapter?}\\
-The time series dataset used is taken from the Simbench database. This database refers to some real distribution networks in Germany in the year 2016. SimBench includes multiple time series for one year with 15 min resolution for load, generation and storage units. All time series came as active and reactive power. The time series were normalized, reducing the total number of required time series to a reasonable number, while retaining the possibility to model individual nominal power \cite{Simbenchds0}. All active power values are normalized to the maximum active power value.\\
+The time series dataset used is taken from the Simbench database. This database refers to some real distribution networks in Germany in the year 2016. SimBench includes multiple time series for one year with 15 min resolution for load, generation and storage units. All time series came as active and reactive power. The time series were grouped by element type, reducing the total number of required time series to a reasonable number, while retaining the possibility to model individual nominal power \cite{Simbenchds0}. All active power values are normalized to the maximum active power value.\\
 
 Power utilities commonly use generic load profiles to group commercial customers with similar load shapes into categories or standard load profiles (\glspl{SLP}). \\
 The most commonly used profiles set is developed by the German Association of Energy and Water Industries (BDEW). It comprises eleven aggregated profiles, one for residential consumers (H0), three for agricultural (L0-L3), and seven for commercial consumers with different opening hours (G0-G6). They are differentiated into workdays, Saturdays and Sundays as well as three seasonal categories winter, summer, and transitional. The set also includes two profiles for street lightning (B0) and band load (G7). \\
@@ -198,9 +198,9 @@ As said, each element (load or generator) falls under a specific profile type th
 In this case, the profiles' distribution in the Pandapower network is as follows:
 
 \begin{algorithm}[h]
-\State Load elements by type: \{'L2-A': 24, 'H0-C': 5, 'L1-A': 23, 'H0-B': 5, 'H0-A': 4\}
+\State Load elements by type: \{'H0-A': 17, 'H0-B': 12, 'H0-C': 10, 'L2-A': 1, 'H0-G': 6, 'H0-L': 10, 'L2-M': 1, 'L1-A': 1, 'G2-A': 1, 'G6-A': 1, 'G1-B': 1\}
 
-\State{RES elements by type: \{'PV5': 27, 'PV8': 14, 'PV6': 13, 'WP4': 3, 'WP7': 3\}}
+\State{RES elements by type: \{'PV7': 8, 'PV8': 3, 'PV6': 7, 'PV5': 9, 'PV3': 16, 'WP4': 5, 'PV4': 8, 'PV1': 1, 'WP7': 3\}}
 \end{algorithm}
 \noindent where the letters stand for: commercial enterprises (G), households (H), agricultural holdings (L) and industrial companies (BL/BW)'; with last letters –A to C indicating low consumption, -M medium consumption, and -H high consumption customers. \\
 For the \gsl{DES} device there are photovoltaics \glspl{PV} and wind parks \glspl{WP}. It is possible to notice a bigger presence of \glspl{PV} over \glspl{WP}.\\
@@ -211,8 +211,8 @@ The loads and \glspl{DER} are chosen so that different profile types are present
 
 \begin{figure}[H]
 \centering
-    \includegraphics[width=.7\linewidth]{images/MVOberr/BoxPlotLoad.png}
-    \includegraphics[width=.7\linewidth]{images/MVOberr/BoxPlotRes.png}
+    \includegraphics[width=.8\linewidth]{images/MVOberr/BoxPlotLoad.png}
+    \includegraphics[width=.8\linewidth]{images/MVOberr/BoxPlotRes.png}
 \caption{Box plots of load and generation for each profile type}
 \label{fig:gym_anm_net}
 \end{figure}
@@ -240,24 +240,24 @@ With a similar approach, it is possible to easily create different cases, changi
 \label{fig:gym_anm_net}
 \end{figure}
 
-It is possible to notice a higher consumption of energy over the production, especially at the beginning and end of the year, when the sun intensity is not too high. \\
+[old] It is possible to notice a higher consumption of energy over the production, especially at the beginning and end of the year, when the sun intensity is not too high. \\
 
 \subsubsection{Case: High generation}
 Some cases are tested using scaling factors for load and generation. The high resolution case refers to scaling factors, as follows:
 \begin{algorithm}[h]
-    \State {scale\_factor\_load = 0.5} 
+    \State {scale\_factor\_load = 0.6} 
     
-    \State {scale\_factor\_sgen = 3.5}
+    \State {scale\_factor\_sgen = 1}
 \end{algorithm}
 
 \begin{figure}[H]
 \centering
     \includegraphics[width=.7\linewidth]{images/MVOberr/High gen.png}
-\caption{Case high generation. Voltage buses results obtained running the time series. \emph{For a faster execution, only 7 days (672 time steps) are considered. Time step 0 correspond to 00:00 of 01/01/2016.}}
+\caption{Case high generation. Voltage buses results obtained running the time series}
 \label{fig:gym_anm_net}
 \end{figure}
 
-From the plot above, it is possible to see that there are few overvoltage problems and many under voltage problems. A time step is critical when the voltage of any bus is out of the boundaries $V_i < v^{\text{min}}$ (under voltage) or $V_i > v^{\text{max}}$ (over voltage), where $v^{\text{min}}$ is the minimum acceptable voltage, 0.95, and $v^{\text{max}}$ is the maximum one, 1.05. \\
+From the plot above, it is possible to see that there are some overvoltage problems and few under voltage problems. A time step is critical when the voltage of any bus is out of the boundaries $V_i < v^{\text{min}}$ (under voltage) or $V_i > v^{\text{max}}$ (over voltage), where $v^{\text{min}}$ is the minimum acceptable voltage, 0.95, and $v^{\text{max}}$ is the maximum one, 1.05. \\
 The problems are highlighted in the following plot.
 
 \begin{figure}[H]
@@ -267,11 +267,40 @@ The problems are highlighted in the following plot.
 
  \end{figure}
 
+The full dataset is divided in train, validation and test set with the following proportions: 0.7, 0.2, 0.1 respectively. \\
+The dataset is highly imbalanced, since usually networks perform well most of the time and the critical conditions are few:
 
 
+\begin{algorithm}[h]
+    \State Number of critical situations: 1161, over 35040 time steps, ratio: 3.3\%
+    \State
+    \State Number of critical instants in Train set: 907, ratio: 3.7\%
+    \State Number of critical instants in Val set: 95, ratio: 1.4\%
+    \State Number of critical instants in Test set: 159, ratio: 4.5\%
+\end{algorithm}
 
+The model tested is a multi layer perceptron with two hidden layers of size 192 and 64 and the output size is just one neuron with a Sigmoid activation function.\\
+The data input shape is as follows:
+\begin{algorithm}[H]
+    \State Inputs shape (batch size, time steps, features): (512, 16, 69)
+\end{algorithm}
+\noindent with a temporal window $r$ of 16 time steps (4 hours in the past). This input is flatten before being passed to the MLP. \\
+The output shape is just:
+\begin{algorithm}[h]
+    \State Labels shape (batch size, time steps): (512, 1)
+\end{algorithm}
 
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.6\linewidth]{images/MVOberr/DenseNNResult.png}
+\caption{Training history on the validation set}
+ \end{figure}
+\noindent As expected, the results are poor. \\
+I also tried to add some class weights for the less present class, set bias weights in the last fully connected layer, applied differencing method (subtract time step value at time $t$ with the value at time $t+1$; this removes the time dependency and stabilize the mean. Trend and seasonality are reduced in this way) but the results were still not acceptable.\\
 
+\noindent \emph{Any suggestion? :'( \\ Moreover, what would be an acceptable level of recall/precision/accuracy? I was thinking that since the network can handle a critical situation for some time, if the DSO would curtail some generators, these values should be >0.8 so that it makes sense to trust the model and apply some action.} \label{q:evaluation}
+
+\newpage
 \subsubsection{Case: High load}
 The high load case refers to scaling factors, as follows:
 \begin{algorithm}[h]

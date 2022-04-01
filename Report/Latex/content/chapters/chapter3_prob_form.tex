@@ -1,17 +1,17 @@
-\chapter{Problem formulation}
+\chapter{Problem analysis}
 \label{chapter4}
 %phd report
 %https://roadnighttaylor.co.uk/news/what-is-active-network-management/
 The principle of active network management \gls{ANM} is to address congestion and voltage issues via short-term decision making policies \cite{ANMQuentin}. \\
 \gls{ANM} creates a smarter network infrastructure providing automated control of various components in the network and provides the information needed to ensure that every device performs in an optimal manner. This automated control allows grid companies to avoid reinforcing the network with expensive upgrades, so reducing the costs.
-Indeed, in case of energy generation from the renewable devices higher than what a single line can handle, a grid company, to avoid congestions and possible overvoltages, has three main options:
+For example, in case of energy generation from the renewable devices higher than what a single line can handle, a grid company, to avoid congestions and possible overvoltages, has three main options:
 \begin{itemize}
     \item Replace the existing line with a line that can handle a higher voltage.
     \item Add another parallel line.
     \item Use \gls{ANM}.
 \end{itemize}
 The first two solution require some infrastructure investment that can be expensive and problematic, especially in the case of overhead or underground lines.\\
-The solution with \gls{ANM} does not require construction cost for the grid company. So to keep the network working, in this case, the output of the renewable devices would be curtailed to reduce lines' overloading. \\
+The solution with \gls{ANM} does not require construction cost for the grid company; to keep the network working, in this case, the output of the renewable devices can be curtailed to reduce lines' overloading. \\
 
 In these references, \gls{ANM} schemes maintain the system within operational limits by relying on the curtailment of the generator devices, \glspl{PV}, \glspl{WP} and other \gls{DER} devices. \\
 Curtailment of renewable energy may be considered as counter-intuitive on the environmental point of view, and it may be considered as last option. Indeed, this process can slow down the switch to clean energy, because of the lost of the curtailed energy. \\
@@ -21,61 +21,115 @@ Another way to reduce the energy curtailment is to use Flexible Alternating Curr
 level of power flow control and enhance the transfer capability over the existing network. This flexibility can be utilized for congestion
 mitigation and renewable energy integration. Particularly, \gls{FACTS} devices allow controlling all parameters that determine active and reactive power transmission: nodal voltages magnitudes and angles and line reactance. These devices replace the mechanical switches with semiconductor switches allowed much faster response times. One problem with these devices is the cost a system operator should sustain to implement them in the network \cite{facts}.
 
-\section{Problem statement}
-This thesis will focus on \gsl{ANM} and the problem faced by a system operator to maintain the network within its operational limits. In particular, the \gsl{DSO} will evaluate whether in a given moment there will be a voltage problem and to apply curtailment to generator devices to maintain the voltage inside a safe range.\\
 
-The \gls{DSO} knows some information about the network: 
+\section{Network topology}
+\label{sec:nt}
+A distribution network can be represented as a direct graph $\mathcal{G}(\mathcal{N},\mathcal{E})$, where \gls{N} is a set of positive integers representing the buses (or nodes) in the network, \gls{E} $\subseteq \mathcal{N} \times \mathcal{N}$ is the set of directed edges linking two buses together. The notation \gls{e} $\in \mathcal{E}$ refers to the directed edge with sending bus $i$ and receiving bus $j$. Each bus might be connected to several devices, which may inject or withdraw power from the grid. The set of all devices is denoted by \gls{D} that can be either loads \gls{L} or generators \gls{G}. \\
+Several variables are associated with each bus $i \in \mathcal{N}$: a bus voltage $\mathcal{V}_i$, a bus current injection $I_i$, an active power injection $P_i$ and reactive power injection $Q_i$. The complex powers $S_i$, $S_d$ $\in \mathbb{C}$ injected into the network at bus $i$, or device $d$, can be obtained by the relation $S_i = P_i + \mathbf{i}Q_i$ or $S_d = P_d + \mathbf{i}Q_d$. \\
+Similarly, variables $I_{ij}$, $P_{ij}$, $Q_{ij}$ and $S_{ij}$ refer to the direct flow of the quantities in branch $e_{ij}$ as measured at bus $i$ \cite{gym-anm}.\\
+\emph{I think this part should be somewhere but I am not sure where to put it. Here it looks like it is not properly linked to the previous or following part.}
+
+
+\section{Problem statement}
+\label{sec:ps}
+This thesis will focus on \gsl{ANM} and the problem faced by a system operator to maintain the network within its operational limits. In particular, the \gsl{DSO} will evaluate whether in a given moment there will be a voltage problem and to apply (\emph{maybe}) curtailment to generator devices to maintain the voltage inside a safe range.\\
+
+The \gls{DSO} knows some information about the network and several sets of measurements: 
 \begin{itemize}
     \item The network topology: the number of lines, buses, loads and the generators, the lines' length, the distance between buses, and the distance between each load and generator from the external grid. Moreover, lines' impedance are known.
-    \item The active and reactive power of the loads at each time step (some measure may be missing).
+    \item The active and reactive power of the loads at each time step (\emph{due to uncertainty, some measure may be missing}).
     \item The type of \gsl{DER} device, their active power for each time step and the maximum power they can generate.
 \end{itemize}
 
 %https://arxiv.org/ftp/arxiv/papers/2102/2102.05657.pdf
 % Problem formulation
-The time horizon covered in this problem is considered by checking that the system works under the right conditions over a set of $t \in [1,T]$ discrete periods.\\
-
-[\emph{old}] A distribution network can be represented as a direct graph $\mathcal{G}(\mathcal{N},\mathcal{E})$, where \gls{N} is a set of positive integers representing the buses (or nodes) in the network, \gls{E} $\subseteq \mathcal{N} \times \mathcal{N}$ is the set of directed edges linking two buses together. The notation \gls{e} $\in \mathcal{E}$ refers to the directed edge with sending bus $i$ and receiving bus $j$. Each bus might be connected to several devices, which may inject or withdraw power from the grid. The set of all devices is denoted by \gls{D} that can be either loads \gls{L} or generators \gls{G}. \\
-Several variables are associated with each bus $i \in \mathcal{N}$: a bus voltage $\mathcal{V}_i$, a bus current injection $I_i$, an active power injection $P_i$ and reactive power injection $Q_i$. The complex powers $S_i$, $S_d$ $\in \mathbb{C}$ injected into the network at bus $i$, or device $d$, can be obtained by the relation $S_i = P_i + \mathbf{i}Q_i$ or $S_d = P_d + \mathbf{i}Q_d$. \\
-Similarly, variables $I_{ij}$, $P_{ij}$, $Q_{ij}$ and $S_{ij}$ refer to the direct flow of the quantities in branch $e_{ij}$ as measured at bus $i$ \cite{gym-anm}.
-
-\section{Problem statement}
-\label{sec:ProbStat}
-With the increasing number of renewable energy generators entering the power distribution systems, more and more stress is placed on the networks. This energy produced by the generators can increase the voltage in certain points of the network, causing blackouts or damaging the network's transmission lines. These are interruptions of the energy distribution, and they must be avoided. \\
-
-A possible solution to this problem is to control the renewable energy generators to produce less than what they could have produced; known as curtailment process. \\
-In a distribution network, there are some information for the elements connected to the grid, like active and reactive power, magnitude voltage value and so on. These values are recorded and expressed as a multi-dimentional time series.\\
-
-More formally, given the directed graph \gls{G}, at timestamp $t$ it is possible to know the feature $X=[l_p,l_q,b_V,e_L]$ with $l_p$ and $l_q$ are the active and reactive power of each load $l \in \mathcal{L}$, $b_V$ are the buses voltage and $e_L$ are the loadings of the edge connecting 2 buses. It is possible that $X$ is known, or only a subset of it, $X_s \subset X$ is known due to non-fully observability of the network. This $X$ time series dataset will be the input of an artificial neural network \gsl{ANN}.\\
-The problem can be solved as a classification or regression problem: 
+%The time horizon covered in this problem is considered by checking that the system works under the right conditions over a set of $t \in [1,T]$ discrete periods.\\
+The \gls{DSO} will consider the behaviour of the network over a set of discrete time steps $t \in {1,2,...,T-1,T}$ with $T \in \mathbb{N}$ and he will predict if the system in a given time step $t+1$ will be in a critical condition, knowing the system information of the previous time steps. In particular, the \gls{DSO} will consider only the $r$ preceding steps. The system critical state $C_{t+1}$ can be formulated as follows: 
+\begin{equation} \label{eq:fmapping}
+    C_{t+1} = f(S_{t+r-1},S_{t+r-2},\dots,S_{t-1},S_{t})
+\end{equation}
+\noindent where:
 \begin{itemize}
-    \item as a classification problem, the output of the \gsl{ANN} will be a binary value that states if in the next $n$ time steps there will be an over or under voltage problem. For the loss, many loss functions can be used, for example a binary cross-entropy loss function. Given $p(y_i) \in \{0,1\}$ the output probability prediction given the input $x \in X$ (or $x_c \in X_c$) the loss would be calculated as follows: 
-    \[
-    H = - \frac{1}{N} \sum_{i=1}^{N} y_i \log{(p(y_i))} + (1 - y_i) \log{(1 - p(y_i))} 
-    \]
-    where $y_i$ is the real label, $p(y_i)$ is the predicted probability that there will be a voltage problem and N is the number of inputs.
-    \item for the regression problem, the output of the \gls{ANN} will be the voltage forecast for each buses for the next $n$ time steps. Also for this problem, many loss functions can be used, for example a \gls{MAE} loss function, calculated as follows:
-    \[
-    MAE = \frac{1}{T \cdot N} \sum_{t=1}^{T} \sum_{i=1}^{N} |y_{t,i} - \hat{y}_{t,i}|
-    \]
-    where $y_{t,i}$ is the real voltage value at time $t$, $\hat{y}_{t,i}$ is the predicted voltage at time $t$ and $T$ is the number of future time steps to forecast.
+    \item $S_i$ is the state of the system at one generic time step $i$, $S_i \in \mathbb{R}^n$ with $n$ the number of elements.
+    \item $f(\,\dots)$ is a forecasting function that maps the input state system to the critical system evaluation $f: \mathbb{R}^{r,n} \mapsto \{0,1\}$.
+    \item $C_{t+1}$ is the forecasted value of the system ($C_{t+1} \in \{0,1\}$) stating if the system is critical ($C_{t+1}=1$) or not ($C_{t+1}=0$). 
 \end{itemize}
 
-The distribution network used is the MV Oberrhein network from Pandapower and the time series are taken from the Simbench dataset. This database refers to some real distribution networks in Germany in the year 2016; the dataset spans over one year with a $\Delta t$ of 15 minutes (a total of 35,040 time steps).
+The state of the system is represented by the loads and generators' active and reactive power and/or the buses' voltage magnitude:
+\begin{equation} \label{eq:systemState}
+    S_t = [V^1_t,V^2_t,\dots,V^{n-1}_t,V^n_t]
+\end{equation}
+\noindent where $V^i_t$ represents the voltage magnitude at time $t$ for bus $i$.
 
-\section{Optimization problem}
-This voltage control problem can be formulated as a stochastic problem, where the goal is to minimise the losses while meeting some constraints. In particular, the objective is to minimise the loss $L_g$ of each generator $g \in$ \gls{G} due to the curtailment and avoid not useful transport of energy and other minor energy losses $L_{\epsilon}$ (read: L of epsilon). Moreover, the system has to satisfy the condition of loads demands, that the network is considered safe and the congestion risk of each edge $r_{e_{ij}}$ is less than a given maximum tolerated congestion risk $R_{e_{ij}}$, e.g. {1\%} and that the power generated by each generator $\bar{g}_p$ is less or equal to its maximum installed capacity $g^{max}_p$, and the active and reactive power of the loads ($\bar{l}_p$, $\bar{l}_q$) are in their limits. \\
-Mathematically (\cite{haulogypaper}):
-\[
-min \sum_{g \in G} L_g + L_{\epsilon}
-\]
-subject to
-\begin{equation*}
-\begin{aligned}
-& r_{e_{ij}} < R_{e_{ij}} \qquad & \forall e \in \mathcal{E} \\
-& g^{min}_p \leq \bar{g}_p \leq g^{max}_p \qquad & \forall g \in \mathcal{G} \\
-& l^{min}_p \leq \bar{l}_p \leq l^{max}_p \qquad & \forall l \in \mathcal{L} \\
-& l^{min}_q \leq \bar{l}_q \leq l^{max}_q \qquad & \forall l \in \mathcal{L} \\
-\end{aligned}
-\end{equation*}
+
+\section{Solving methodology}
+\label{sec:sm}
+It is common in time series forecasting problems to use artificial neural networks (\glspl{ANN}) to find a solution, thanks to their capacity to learn an approximate mapping function from the input space to the output space. In this case, the \gls{ANN} will take as input the information from the network, and it will output a binary value, stating if there will be or not a critical situation in the network. \\
+
+Model inputs consist of state variables from time instance $t-r+1$ to $t$. According to \ref{eq:fmapping} and \ref{eq:systemState}, the input can be expressed as a matrix of state variable:
+\begin{equation}
+  \begin{aligned}
+    \text{input} & = [S_{t+r-1},S_{t+r-2},\dots,S_{t-1},S_{t}]\\
+        & = 
+        \begin{bmatrix}
+         V^1_{t-r+1} & V^1_{t-r+2} & \cdots & V^1_{t-1} & V^1_{t} \\
+         & & & & \\
+         
+         V^2_{t-r+1} & V^2_{t-r+2} & \cdots & V^2_{t-1} & V^2_{t} \\
+         & & & & \\
+         
+         \vdots & \vdots & \ddots & \vdots & \vdots \\
+         & & & & \\
+         
+         V^{n-1}_{t-r+1} & V^{n-1}_{t-r+2} & \cdots & V^{n-1}_{t-1} & V^{n-1}_{t} \\
+         & & & & \\
+         
+         V^n_{t-r+1} & V^n_{t-r+2} & \cdots & V^n_{t-1} & V^n_{t} \\
+        \end{bmatrix}
+  \end{aligned}
+\end{equation}
+
+\noindent Given this input, the \gls{ANN} must output binary value stating whether the system is safe or in critical situation at the time step $t+1$. \\
+
+The strategy behind this thesis is to use supervised learning techniques that may extract optimal solutions, decision-making patterns to be applied to the network.
+
+% \section{Problem statement}
+% \label{sec:ProbStat}
+% [\emph{old}] With the increasing number of renewable energy generators entering the power distribution systems, more and more stress is placed on the networks. This energy produced by the generators can increase the voltage in certain points of the network, causing blackouts or damaging the network's transmission lines. These are interruptions of the energy distribution, and they must be avoided. \\
+
+% A possible solution to this problem is to control the renewable energy generators to produce less than what they could have produced; known as curtailment process. \\
+% In a distribution network, there are some information for the elements connected to the grid, like active and reactive power, magnitude voltage value and so on. These values are recorded and expressed as a multi-dimentional time series.\\
+
+% More formally, given the directed graph \gls{G}, at timestamp $t$ it is possible to know the feature $X=[l_p,l_q,b_V,e_L]$ with $l_p$ and $l_q$ are the active and reactive power of each load $l \in \mathcal{L}$, $b_V$ are the buses voltage and $e_L$ are the loadings of the edge connecting 2 buses. It is possible that $X$ is known, or only a subset of it, $X_s \subset X$ is known due to non-fully observability of the network. This $X$ time series dataset will be the input of an artificial neural network \gsl{ANN}.\\
+% The problem can be solved as a classification or regression problem: 
+% \begin{itemize}
+%     \item as a classification problem, the output of the \gsl{ANN} will be a binary value that states if in the next $n$ time steps there will be an over or under voltage problem. For the loss, many loss functions can be used, for example a binary cross-entropy loss function. Given $p(y_i) \in \{0,1\}$ the output probability prediction given the input $x \in X$ (or $x_c \in X_c$) the loss would be calculated as follows: 
+%     \[
+%     H = - \frac{1}{N} \sum_{i=1}^{N} y_i \log{(p(y_i))} + (1 - y_i) \log{(1 - p(y_i))} 
+%     \]
+%     where $y_i$ is the real label, $p(y_i)$ is the predicted probability that there will be a voltage problem and N is the number of inputs.
+%     \item for the regression problem, the output of the \gls{ANN} will be the voltage forecast for each buses for the next $n$ time steps. Also for this problem, many loss functions can be used, for example a \gls{MAE} loss function, calculated as follows:
+%     \[
+%     MAE = \frac{1}{T \cdot N} \sum_{t=1}^{T} \sum_{i=1}^{N} |y_{t,i} - \hat{y}_{t,i}|
+%     \]
+%     where $y_{t,i}$ is the real voltage value at time $t$, $\hat{y}_{t,i}$ is the predicted voltage at time $t$ and $T$ is the number of future time steps to forecast.
+% \end{itemize}
+
+% The distribution network used is the MV Oberrhein network from Pandapower and the time series are taken from the Simbench dataset. This database refers to some real distribution networks in Germany in the year 2016; the dataset spans over one year with a $\Delta t$ of 15 minutes (a total of 35,040 time steps).
+
+% \section{Optimization problem}
+% This voltage control problem can be formulated as a stochastic problem, where the goal is to minimise the losses while meeting some constraints. In particular, the objective is to minimise the loss $L_g$ of each generator $g \in$ \gls{G} due to the curtailment and avoid not useful transport of energy and other minor energy losses $L_{\epsilon}$ (read: L of epsilon). Moreover, the system has to satisfy the condition of loads demands, that the network is considered safe and the congestion risk of each edge $r_{e_{ij}}$ is less than a given maximum tolerated congestion risk $R_{e_{ij}}$, e.g. {1\%} and that the power generated by each generator $\bar{g}_p$ is less or equal to its maximum installed capacity $g^{max}_p$, and the active and reactive power of the loads ($\bar{l}_p$, $\bar{l}_q$) are in their limits. \\
+% Mathematically (\cite{haulogypaper}):
+% \[
+% min \sum_{g \in G} L_g + L_{\epsilon}
+% \]
+% subject to
+% \begin{equation*}
+% \begin{aligned}
+% & r_{e_{ij}} < R_{e_{ij}} \qquad & \forall e \in \mathcal{E} \\
+% & g^{min}_p \leq \bar{g}_p \leq g^{max}_p \qquad & \forall g \in \mathcal{G} \\
+% & l^{min}_p \leq \bar{l}_p \leq l^{max}_p \qquad & \forall l \in \mathcal{L} \\
+% & l^{min}_q \leq \bar{l}_q \leq l^{max}_q \qquad & \forall l \in \mathcal{L} \\
+% \end{aligned}
+% \end{equation*}
 
