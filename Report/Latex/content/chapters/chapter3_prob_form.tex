@@ -4,7 +4,7 @@
 %https://roadnighttaylor.co.uk/news/what-is-active-network-management/
 The principle of active network management \gls{ANM} is to address congestion and voltage issues via short-term decision making policies \cite{ANMQuentin}. \\
 \gls{ANM} creates a smarter network infrastructure providing automated control of various components in the network and provides the information needed to ensure that every device performs in an optimal manner. This automated control allows grid companies to avoid reinforcing the network with expensive upgrades, so reducing the costs.
-For example, in case of energy generation from the renewable devices higher than what a single line can handle, a grid company, to avoid congestions and possible overvoltages, has three main options:
+For example, in case of energy generation from the renewable devices higher than what a particular line can handle, a grid company, to avoid congestions and possible overvoltages, has three main options:
 \begin{itemize}
     \item Replace the existing line with a line that can handle a higher voltage.
     \item Add another parallel line.
@@ -32,84 +32,82 @@ Similarly, variables $I_{ij}$, $P_{ij}$, $Q_{ij}$ and $S_{ij}$ refer to the dire
 
 \section{Problem statement}
 \label{sec:ps}
-This thesis will focus on \gsl{ANM} and the problem faced by a system operator to maintain the network within its operational limits. In particular, the \gsl{DSO} will evaluate whether in a given moment there will be a voltage problem and (\emph{maybe}) to apply curtailment to generator devices to maintain the voltage inside a safe range.\\
+This thesis will focus on \gsl{ANM} and the problem faced by a \gsl{DSO} to maintain the network within its operational limits. In particular, the system operator will evaluate whether in a given moment there will be a voltage problem, so that it would be possible to proceed with some actions, like applying curtailment to generator devices, to maintain the voltage inside a safe range.\\
 
 The \gls{DSO} knows some information about the network:
 \begin{itemize}
     \item The network topology: the number of buses, loads and generators, the lines' length, the distance between the connected buses, and the distance between each load and generator from the external grid. Moreover, the impedance of the lines is known.
-    \item The active and reactive power of the loads at each time step (\emph{due to uncertainty, some measure may be missing}).
-    \item The type of \gsl{DER} device, their active power for each time step and the maximum power they can generate.
+    
+    \item The active and reactive power of some loads at each time step. Some values may not available mainly for two reasons: \emph{1)} communication problem so the sensor recording was lost, \emph{2)} for that particular load there are no measurements at all due to privacy reasons or for the lack of sensors.
+    
+    \item The type of \gsl{DER} device connected to each bus. If the \gls{DER} device is directly connected to the medium voltage grid, all the active power and reactive power are available for each time step. \emph{otherwise? only the injection at the 'higher' bus is known?}
 \end{itemize}
 
-This information is used to calculate the power flow of the network and obtain other information like the voltage magnitude at each bus, lines' loading and other values. This calculation can be performed with any power system analysis tool, for this thesis Pandapower will be used.\\
+This data is used to calculate the power flow of the network and obtain more information like the voltage magnitude at each bus, lines' loading and other values. This calculation can be performed with any power system analysis tool, for this thesis Pandapower will be used.\\
 
-Moreover, since the power flow depends on the power injection of the different elements, it is possible to create some possible cases changing the active and reactive power of the devices. These cases can be generated multiplying the time series by some scaling factors to increase or decrease the injection values.  \\
+%Moreover, since the power flow depends on the power injection of the different elements, it is possible to create some possible cases changing the active and reactive power of the devices. These cases can be generated multiplying the time series by some scaling factors to increase or decrease the injection values.  \\
 
 %https://arxiv.org/ftp/arxiv/papers/2102/2102.05657.pdf
-The \gls{DSO} will consider the behaviour of the network over a set of discrete time steps $t \in \{1,2,...,T-1,T\}$ with $T \in \mathbb{N}$ and he will predict if the system, in some given $t+f$ future time steps, will be in a critical condition, knowing the system information of the previous time steps. For doing so, the \gls{DSO} will consider the history of the system only for $h$ preceding steps. The system critical state $C$ can be formulated as follows: 
+The \gls{DSO} will consider the behaviour of the network over a set of discrete time steps $t \in \{1,2,...,T-1,T\}$ of length $\Delta t$, with, $T \in \mathbb{N}$, the last time step of the time series’s horizon. The operator will predict if the system, in some given $t+f$ future time steps, will be in a critical condition, knowing the system information of the previous time steps. For doing so, the \gls{DSO} will consider the history of the system only for $h$ preceding steps. The system critical state $C$ can be formulated as follows: 
 \begin{equation} \label{eq:fmapping}
-    C = f(O_{t-h+1},O_{t-h+2},\dots,O_{t-1},O_{t})
+    C = P_N(I_{t-h+1},I_{t-h+2},\dots,I_{t-1},I_{t})
 \end{equation}
 \noindent where:
 \begin{itemize}
-    \item $\textbf{O}$ is the observation space and $O_i$ is the observation vector of the system at one generic time step $i$\emph{, $O_i \in \mathbb{R}^n$ with $n$ the number of elements}.
-    \item $h$ is the number of how many history time steps will be considered.
-    \item $f(\,\dots)$ is an approximate forecasting function that maps the information of the system to the critical system evaluation $f: \mathbb{R}^{h,n} \mapsto \{0,1\}^f$.
-    \item $C$ is the vector of forecasted values of the system ($C_{t+i} \in \{0,1\}$) stating if the system is critical ($C_{t+i}=1$) or not ($C_{t+i}=0$), with $i \in \{1,2,\dots,f-1,f\}$. 
+    \item $\textbf{I}$ is the information about the network and $I_i$ is the information vector, with $I \in \textbf{I}$, of the system at one generic time step $i$.
+    $\textbf{I}$ is represented by some information like the network topology, the loads and generators' active and reactive power and the buses' voltage magnitude, lines' loading and other information.
+    
+    \item $h$ is the number of how many history time steps will be considered. $h \in \mathbb{N}^+$.
+    
+    \item $P_N$ is a generic pipeline that maps the input information of the system to the critical system evaluation, and the subscript $N$ refers to the fact that the pipeline depends on the particular network considered. \\
+    Henceforth, the pipeline will be referenced without the $N$ subscript.% $P: \mathbb{R}^{h,n} \mapsto \{0,1\}^f$.
+    
+    \item $C$ is the vector of forecasted values of the system ($C_{t+i} \in \{0,1\}$) stating if the system is critical ($C_{t+i}=1$) or not ($C_{t+i}=0$), with $i \in \{1,2,\dots,f-1,f\}$ and $f \in \mathbb{N}^+$. 
+    %The network is considered in a critical situation when the following condition holds
 \end{itemize}
-
-The observation space of the system is represented by some information like the network topology, the loads and generators' active and reactive power and the buses' voltage magnitude, lines' loading and other information.
-
 
 \section{Solving methodology}
 \label{sec:sm}
-It is common in time series forecasting problems to use artificial neural networks (\glspl{ANN}) to find a solution, thanks to their capacity to learn an approximate mapping function from the input space to the output space. In this case, the \gls{ANN} will take as input the information from the network, and it will output a binary value, stating if there will be or not a critical situation in the network. \\
+The goal of this thesis is to find a practical pipeline $P$. This pipeline mainly consist of some steps:
+\begin{itemize}
+    \item Solve the partial-observability problem, generating realistic time series or filling the missing measurements for the different elements. These time series are needed to run the power flow calculation.
+    \item Preprocess the information to build a dataset, consisting of $\{\textbf{x,y}\}$ couples.
+    \item Use the generated dataset to train a classifier that can forecast whether the network will ne in a critical situation.
+\end{itemize}
 
-Given all the information from the observation space, a subset is used to train the classifier. This subspace is called the state space and, for example, can be represented as follows: 
-\begin{equation} \label{eq:systemState}
-  \begin{aligned}
-    \textbf{S} & \subseteq \textbf{O} \\
-    S & = [V^{1}_t,V^{2}_t,\dots,V^{n-1}_t,V^{n}_t] 
-  \end{aligned}
-\end{equation}
-\noindent where $\textbf{S}$ represents the state space, $S$ the state vector, with $S \in \textbf{S}$, and $V^{i}_t$ represents the voltage magnitude at time $t$ for bus $i$. \\
+\subsection{Partial-observability problem}
+%https://arxiv.org/pdf/2108.08350.pdf
+As mentioned, the network has only a partial-observability mainly due to \emph{a)} missing values or \emph{b)} values not available at all. \\
 
-In particular, the \gls{ANN} inputs consist of state variables from time instance $t-h+1$ to $t$. According to \ref{eq:fmapping} and \ref{eq:systemState}, the input can be expressed as a matrix of state variable:
+In the literature, missing values problems are solved with filling these values with values from the adjacent time steps, averages or more complex methods like for example interpolation in the case of \emph{a)} or with generative models in the case of \emph{b)}. \\
 
-\begin{equation}
-  \begin{aligned}
-    \textbf{x} & = S \\
-    & = [S_{t-h+1},S_{t-h+2},\dots,S_{t-1},S_{t}]\\
-        %& = 
-        %\begin{bmatrix}
-        % V^1_{t-r+1} & V^1_{t-r+2} & \cdots & V^1_{t-1} & %V^1_{t} \\
-        % & & & & \\
-        % 
-        % V^2_{t-r+1} & V^2_{t-r+2} & \cdots & V^2_{t-1} & %V^2_{t} \\
-        % & & & & \\
-        % 
-        % \vdots & \vdots & \ddots & \vdots & \vdots \\
-        % & & & & \\
-        % 
-        % V^{n-1}_{t-r+1} & V^{n-1}_{t-r+2} & \cdots & %V^{n-1}_{t-1} & V^{n-1}_{t} \\
-        % & & & & \\
-        % 
-        % V^n_{t-r+1} & V^n_{t-r+2} & \cdots & V^n_{t-1} & %V^n_{t} \\
-        %\end{bmatrix}
-  \end{aligned}
-\end{equation}
+These methods will allow complementing the network time series and having sufficient data to perform the power flow calculation.
 
-\noindent Given this input, the \gls{ANN} must output a binary value stating whether the system is safe or in critical situation at the time steps $t+f$. 
+\subsection{Preprocessing}
+Given all the information about the network, only a subset will be used to train the classifier, in particular the information given from the power flow calculation, that can be the voltage magnitude at each bus or the lines' loading. \\
 
-\begin{equation}
+This subset of information is divided in windows of length $h$ for the history time series, that correspond to the inputs $\textbf{x}$s and in outputs $\textbf{y}$s, of length $f$ of future time steps, that correspond to the labels.
+
+\begin{equation*}
+    \textbf{x} & \subseteq \textbf{I}
+\end{equation*}
+
+\begin{equation*}
     \begin{aligned}
         \textbf{y} & = C \\
     & = [C_{t+1},C_{t+2}, \dots, C_{t+f-1},C_{t+f}]
     \end{aligned}
-\end{equation}
-This database with the couple of elements \{\textbf{x,y}\} will be used with supervised learning techniques that may extract the mapping function $f(\,\dots)$ in order to solve the problem. \\
+\end{equation*}
+%In particular, the \gls{ANN} inputs consist of state variables from time instance $t-h+1$ to $t$. According to \ref{eq:fmapping} and \ref{eq:systemState}, the input can be expressed as a matrix of state variable:
 
-The dataset will be split in train, validation and test set in order to train and validate the \gls{ANN}.
+\subsection{Forecasting}
+It is common in time series forecasting problems to use artificial neural networks (\glspl{ANN}) to find a solution, thanks to their capacity to learn an approximate mapping function from the input space to the output space. In this case, the \gls{ANN} will take as input the information from the network, and it will output binary values, stating if there will be or not a critical situation in the network. \\
+
+\noindent Given the input $\textbf{x}$, the \gls{ANN} must output a binary value stating whether the system is safe or in critical situation at the time steps $t+f$. \\
+
+This database, given by the couple of elements \{\textbf{x,y}\}, will be used with supervised learning techniques that may extract a forecasting function in order to solve the problem. \\
+
+%The dataset will be split in train, validation and test set in order to train and validate the \gls{ANN}.
 
 % \section{Problem statement}
 % \label{sec:ProbStat}

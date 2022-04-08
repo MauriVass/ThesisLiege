@@ -2,27 +2,31 @@
 %https://www.researchgate.net/figure/A-bidirectional-system-with-distributed-generation_fig2_286569839
 %This section gives an overview of the conducted research work to provide a central theme for the reader of this doctoral thesis. This overview should help to understand each individual paper in the annex, representing essential parts of this doctoral thesis, in the overall context of the developed optimization methodology.
 
-The voltage control problem has been studied for years, but it only comes under the spotlight in recent years for the increasing number of distributed resources introduced in the networks. It is important to control the voltage in an electrical power system for a regular operation of the electrical equipment, to prevent damage such as overheating of generators and motors, to reduce transmission losses and to maintain the ability of the system to last and prevent voltage collapse. \\
+The voltage control problem has been studied for years, but it only comes under the spotlight in recent years for the increasing number of distributed resources introduced in the networks. It is important to control the voltage in an electrical power system for a regular operation of the electrical equipment, to prevent damage such as overheating of devices and lines, to reduce transmission losses and to maintain the ability of the system to last and prevent voltage collapse. \\
 
 %https://electrical-engineering-portal.com/how-reactive-power-is-helpful-to-maintain-a-system-healthy
-In particular, it is useful and needed to reduce the output of renewable generators from what they could otherwise have produced given the available resources, often referred to as the process of \textbf{curtailment}. Such generation curtailment, along with storage and transmission losses, constitute the principal sources of energy loss that could be minimised with active network management \gls{ANM} \cite{gym-anm}. \\
+In particular, it is useful and sometimes needed to reduce the output of renewable generators to prevent possible voltage problems. This means that the output power of these generators is less from what they could otherwise have produced given the available resources. Such prevention is often referred to as the process of \textbf{curtailment}. Said generation curtailment, along with storage and transmission losses, constitute the principal sources of energy loss that could be minimised with smart control system like active network management \gls{ANM} \cite{gym-anm}. \\
 
 \noindent Controlling the voltage in an active way has many interesting properties:
 \begin{itemize}
     \item It is a combination of local and global problem: the voltage at each node is influenced by the powers of all other nodes, but the impact depends on the distance between them.
-    \item It is a constrained optimization problem where the constraint is to keep the voltage in a given range and the objective is to minimise the total power loss.
+    
+    \item It is a constrained optimization problem with many constraints, for example to keep the voltage in a given range, and the objective is to minimise the total power loss.
+    
     \item Voltage control has a relatively large tolerance, and there are no severe consequences if the control fails to meet the requirements for short periods of time. \cite{wang2022multiagent}
-    \item It is a hierarchical problem where much information is available at the top of the pyramid (distribution stations and substations) and they decrease at the base of the pyramid (houses, factories) mainly due to the absence of many sensors.
+    
+    \item It is a hierarchical problem where the information available can be represented as a pyramid: much information is available at the top of the pyramid (distribution stations and substations) and it decreases at the base of the pyramid (houses, factories) mainly due to the absence of many sensors.
 \end{itemize}
 
 \section{Power system}
 \subsection{Description of a power system}
 %https://www.generatorsource.com/Articles/Generator-Info/High-Medium-and-Low-Voltage-Differences.aspx
 %Power systems are facilities that produce and transport electricity to consumers. \\
-Power transmission systems consist of an interconnected set of overhead lines, cables and related equipment that are used for the transfer of electricity at high voltage levels
-between supply points and load points, such as customers and other electric systems. \\
+A power system is a complex infrastructure that produces and distribute electricity to different consumers. A power system consists of generation, transmission and distribution system and each of them has a different function. \\
 
-In the traditional power system, electricity is produced in large, centralised power plants. The electricity is then transferred to the loads using the transmission and distribution networks. High and extra-high voltages are associated with supply transmission from the power plant. The reason for transmitting power at high and extra-high voltage levels is to increase efficiency. The lower current accompanying the high voltage transmission allows for the use of thinner, lighter-weight cables. This reduces the cost in the tower and electrical line construction. In Belgium, High and extra-high voltages refer to voltage magnitudes $30 kV \leq V < 380 kV$ for the high voltage and $V \geq 380 kV$ for the extra high voltage \cite{elia}. (\emph{Symbols problem: V for voltage magnitude and V for volts?})\\
+%Power transmission systems consist of an interconnected set of overhead lines, cables and related equipment that are used for the transfer of electricity at high voltage levels between supply points and load points, such as customers and other electric systems. \\
+
+In the traditional power system, electricity is produced in large, centralised power plants. The electricity is then transferred to the loads using the transmission and distribution networks. High and extra-high voltages are associated with supply transmission from the power plant. The reason for transmitting power at high and extra-high voltage levels is to increase efficiency. The lower current accompanying the high voltage transmission allows for the use of thinner, lighter-weight cables. This reduces the cost in the tower and electrical line construction. In Belgium, high and extra-high voltages refer to voltage magnitudes $30 kV \leq V < 380 kV$ for the high voltage and $V \geq 380 kV$ for the extra high voltage \cite{elia}. (\emph{Symbols problem: V for voltage magnitude and V for volts?})\\
 Large industrial complexes and factories that require a substantial amount of power often utilise medium supply voltages. The high voltage coming from the power plant is sent to the primary substation, this can supply step-down power to secondary substations or to single buildings. Secondary substations can have transformers to further step down the power, and they are generally located in areas that can serve one or more buildings. Medium voltages refer to voltage magnitude $0.4 kV \leq V < 30 kV$. \\
 Then the medium supply power is step down again to a low voltage and sent to the domestic household or home appliances power supply. Low voltages refer to voltage magnitude $V < 0.4 kV$. \\
 \begin{figure}[H]
@@ -36,22 +40,28 @@ Then the medium supply power is step down again to a low voltage and sent to the
 
 \noindent A power system is usually made up of the following main elements: \label{networkeledesc}
 \begin{itemize}
-    \item \textbf{Generator}. These produce energy, converting a form of energy into electricity. Many generators produce energy using turbines: a mass of air or water spin the generator's blades, producing electricity. This mass can be natural: hydroelectric, wind or geothermal turbines, or generated by combustion of some fuel, for example natural gas or nuclear source. \\
+    \item \textbf{Generator}. These produce energy, converting a form of energy into electricity. In general, electricity is produced when a magnet is moved near a wire to create a steady flow of electrons.\\
+    So, many generators produce energy using turbines: a fluid spin the generator's blades, producing electricity. This fluid, either water or air, can derive from natural sources: hydroelectric, wind or geothermal turbines, or generated by combustion of some fuel, for example coal, natural gas, oil or nuclear source. \\
     There are other generators that do not need a turbine to generate electricity, for example solar panels.
-    \item \textbf{Transformers}. Transformers are used to interlink systems operating at different voltages. These can increase  the voltage magnitude near a generator power plant or decrease it near the consumptions facilities. \\
-    Changing the voltage magnitude allows reducing the power loss due to transportation: the power lost is given by $P=VI$, where \gls{V} is the voltage and \gls{I} is the current, so decreasing the voltage can reduce the energy loss.
+    
     \item \textbf{Lines}. These transport the power from where energy is generated to where it is consumed. One of the main issues about transportation lines is insulation. \\
     There are different types of lines: overhead cables, they use air to insulate the bare conductors or underground cables, for these cables particular attention must be taken to insulate them from other conductors and from the earth (ground). Also, the material used must be resistant to damages, corrosion, and it must avoid that the water is being absorbed.
+    
+    \item \textbf{Transformers}. Transformers are used to interlink systems operating at different voltages. These can increase  the voltage magnitude near a generator power plant or decrease it near the consumptions facilities. \\
+    Changing the voltage magnitude allows reducing the power loss due to transportation. One of the main causes of power loss is the Joule effect: some part of the energy transmitted is converted in heat generated by the current flowing through a conductor. This power lost is given by the equation $P=VI$, where \gls{V} is the voltage and \gls{I} is the current, so decreasing the voltage reduces the energy loss.
+    
     \item \textbf{Switchgear}. In an electricity supply, it is necessary to disconnect equipment from the network quickly if a fault occurs to avoid damage on the elements of the network, or to disconnect some points of the network to avoid excessive losses or too high or low voltages. \\
     Switchgear is a broad term that describes a wide variety of switching devices that fulfil the need of controlling, protecting, and isolating power systems. Among these switching devices the most common are: \emph{circuit breaker}, during an electrical fault, a circuit breaker will detect the anomaly and interrupt the power flow, effectively limiting damage to the system; \emph{switch} is an electrical component that can disconnect or connect the conducting path in an electrical circuit, interrupting the electric current or diverting it from one conductor to another; \emph{recloser} similar to the circuit breaker but used in high voltage networks, these devices handle trouble temporary occurrences such as lightning, windblown tree branches or wires,
     birds, or rodents damaging the wires.
     
-    \item \textbf{Loads} are electric components that consume the electric power generated by the generators. The type of loads can be divided base on the consumption in:
+    \item \textbf{Loads} are electric components that consume the electric power generated by power plants. The type of loads can be divided base on the consumption in:
     \begin{itemize}
         \item[] \emph{Domestic loads}, the domestic loads mainly consist of lights, fan, refrigerator, air conditioners, mixer, grinder, heater, ovens, small pumping, motor, etc. The domestic loads consume very little power.
         \item[] \emph{Commercial loads}, the commercial loads mainly consist of lightning, fans, heating, air conditioning and many other electrical appliances used in establishments such as markets, restaurants, shops. This type of load occurs for more hours during the day as compared to the domestic load.
         \item[] \emph{Industrial loads}, the domestic loads refer from a small-scale industry, to a heavy industry. It includes all electrical loads used in industries along with the employed machinery. Industrial loads may be connected during the whole day \cite{EDNdesign}.
     \end{itemize}
+    
+    \item \textbf{Buses} are nodes where a line or several lines are connected and may also include several components such as loads and generators.
     % \item Load buses where \gls{P} and \gls{Q} are specified.
     % \item Generator buses where the voltage magnitude \gls{V} and the power \gls{P} are specified.
     % \item A primary bus, an "infinite" bus, where the magnitude voltage \gls{V} is specified (normally 1 \gls{pu}) and its phase angle \gls{Vangle} is assumed to be zero as a reference angle. At this bus, both \gls{P} and \gls{Q} can be what is needed to keep the network stable. \cite{eps}
@@ -61,11 +71,11 @@ Then the medium supply power is step down again to a low voltage and sent to the
 \label{powerflow}
 %Mathmatical formulation: https://www.engineering.iastate.edu/~jdm/ee458_2011/PowerFlowEquations.pdf
 %Simple discussion: https://www.pterra.com/power-flow-analysis/power-flow-solution-techniques/
-An important procedure in power system networks is to perform a numerical analysis to determine the electrical state of the network, starting from some parameters that are known. This analysis is called optimal power flow (\gls{OPF}).\\
-The \gls{OPF} is an optimization problem essential for planning purposes: besides the calculation of electrical characteristics of the power system, power flow analysis can also help to optimize the system operating conditions, minimize the power losses and determine control actions to satisfy the demand while meeting operational constraints.
+An important procedure in power system networks is to perform a numerical analysis to determine the electrical state of the network, starting from some parameters that are known. This analysis is called power flow (\gls{PF}).\\
+%The \gls{PF} is an optimization problem essential for planning purposes: besides the calculation of electrical characteristics of the power system, power flow analysis can also help to optimize the system operating conditions, minimize the power losses and determine control actions to satisfy the demand while meeting operational constraints.
 
 \subsubsection{Buses}
-The power flow gives information about the steady state of the entire system such as voltage, real and reactive power, line loadings and power injection.\\
+The power flow gives information about the steady state of the entire system such as voltage, active, reactive power and lines' loading.\\
 Each bus is associated with four quantities: voltage magnitude \gls{V}, phase angle \gls{angleV}, real power \gls{AP} and reactive power \gls{Q}.
 Depending on the quantity that have been specified, buses in the power system are classified into the following three different types:
 \begin{itemize}
@@ -84,21 +94,25 @@ The definition of the power flow equations is based on Ohm’s Law, which is the
 \]
 \[
  \begin{bmatrix}
- Y_{1,1} & \quad & \cdots & \quad & Y_{1,N} \\
- &  &  \\
- Y_{2,1} & \quad & \cdots & \quad & Y_{2,N} \\
- &  &  \\
- \vdots & \quad & \ddots & \quad & \vdots \\
- &  &  \\
- Y_{N,1} & \quad & \cdots & \quad & Y_{N,N} \\
+ Y_{1,1} & Y_{1,2} & \quad & \cdots & \quad & Y_{1,N-1} & Y_{1,N} \\
+ & & & & & & \\
+ Y_{2,1} & Y_{2,2} & \quad & \cdots & \quad & Y_{2,N-1} & Y_{2,N} \\
+ & & & & & & \\
+ 
+ \vdots & \vdots & \quad & \ddots & \quad & \vdots & \vdots \\
+ & & & & & & \\
+ 
+ Y_{N-1,1} & Y_{N-1,2} & \quad & \cdots & \quad & Y_{N-1,N-1} & Y_{N-1,N} \\
+ & & & & & & \\
+ Y_{N,1} & Y_{N,2} & \quad & \cdots & \quad & Y_{N,N-1} & Y_{N,N} \\
  \end{bmatrix}
  \times
  \begin{bmatrix}
- V_1 \\ \\ V_2 \\ \\ \vdots \\ \\ V_N
+ V_1 \\ \\ V_2 \\ \\ \vdots \\ \\ V_{N-1} \\ \\ V_N
  \end{bmatrix}
  =
  \begin{bmatrix}
- I_1 \\  \\ I_2 \\ \\ \vdots \\  \\ I_N
+ I_1 \\  \\ I_2 \\ \\ \vdots \\ \\ I_{N-1} \\ \\ I_N
  \end{bmatrix}
 \]
 
@@ -110,7 +124,7 @@ The definition of the power flow equations is based on Ohm’s Law, which is the
 \end{itemize}
 
 The power flow formulation is based on the application of Kirchhoff’s laws to meshed electric networks. The basic concept is that the sum of all flows into each and every node should be equal to zero.\\
-The flows are in complex form, they consist of real and reactive components, or \glspl{W} and \glspl{VAR}. If there are n nodes, then there are n complex equations. The resulting system of equations involves non-linear relationships, making the calculations not easy. Solution methods are primarily iterative with the objective of reducing the sum of flows in all nodes to some acceptably small value known as the mismatch tolerance. \\
+The flows are in complex form, they consist of real and reactive components, or \glspl{W} and \glspl{VAR}. That means that if there are n nodes, then there are n complex equations. The resulting system of equations involves non-linear relationships, making the calculations not easy. Solution methods for this system of equations are primarily iterative with the objective of reducing the sum of flows in all nodes to some acceptably small value known as the mismatch tolerance. \\
 
 All these iterative methods follow the same basic concept: they assume starting values for the dependent variables, primarily voltage at nominal voltage magnitude (i.e. 1 \gls{pu}) and zero phase angle; compute new values for those voltages using the nodal network equation or a numerical approximation and repeat until the convergence criteria are met. \\
 
@@ -118,18 +132,19 @@ The solution has to satisfy some network constrains, in particular:
 \begin{itemize}
     \item Active and reactive power balance: the sum of the power injections (that can be positive or negative) at each bus must be equal to 0. This, as said, results from the Kirchhoff’s laws.
     
-    \item Voltage limits: the voltage magnitude at each bus and the voltage phase difference between two directly connected buses are bounded by some specific values to maintain safe operation.
+    \item Voltage limits: the voltage magnitude at each bus and the voltage phase difference between two directly connected buses are bounded by some specific values to maintain the system safe.
     
     \item Thermal limits on transmission lines: the flow in each transmission line is limited due to the thermal limit of the conductors.
     
-    \item Generator active and reactive power limits: the generating units have    generally a minimum and maximum level of output power.
+    \item Generators' active and reactive power limits: the generating units have generally a minimum and maximum level of output power.
     
     \item Generator ramping limits: the output power of a generating unit can not be instantaneously increased or decreased. The operator must take into account the ramping limits of the generators.
 \end{itemize}
 
 \subsubsection{Convergence}
-The \gls{OPF} is a non-linear and non-convex optimization problem, with a large number of constraints (both equality and inequality constraints) and variables (that can be both continuous and discrete). It is therefore a hard problem, whose solution cost increase exponentially, particularly with the increasing size of the network. Moreover, there is no guarantee to find the global optimum. \\
-When a solution exists and it is reached, it is said that the network has converged. Convergence is the state when all nodes have met the mismatch tolerance. The main power flow solution methods are:
+The \gls{PF} is a non-linear and non-convex numerical analysis, with a large number of constraints (both equality and inequality constraints) and variables (that can be both continuous and discrete). It is therefore a hard problem, whose cost to find a solution can increase exponentially, particularly with the increasing size of the network. Moreover, there is no guarantee to find the global optimum. \\
+When a solution exists and it is reached, it is said that the network has converged. Convergence is the state when all nodes have met the mismatch tolerance. \\
+The main power flow solution methods are:
 \begin{itemize}
     \item Gauss-Seidel method updates the voltage one node at a time until all nodes are within the mismatch tolerance.
     
@@ -160,7 +175,7 @@ Divergence of the power flow solution has traditionally been associated with the
 \subsection{Power system reliability}
 \label{sec:psr}
 %https://info.ornl.gov/sites/publications/Files/Pub57467.pdf
-Reliability is an important factor concerning the quality of energy supply. \\
+Reliability of a power system is an important factor concerning the quality of energy supply. \\
 Power reliability can be defined as the degree to which the performance of the elements in a system results in electricity being delivered to customers within accepted standards and in the desired amount \cite{MPRPQ}. \\
 Reliability indices typically consider such aspects as:
 \begin{itemize}
@@ -176,8 +191,7 @@ These factors depend on variable such as reliability of individual items of equi
 For reliability purposes, it is important to know the maximum voltage that can be
 transferred with transmission lines to meet the anticipated load demand. It is also important to know the levels of power through various transmission lines under certain contingency outage conditions to maintain the continuity of service. Knowledge of power flows and voltage levels under normal operating conditions are necessary in order to determine fault currents and the ensuing consequences on the stability of the system \cite{eps}. \\
 
-
-[American National Standards Institute (ANSI) C84.1-2016 [4], voltage standards for service voltage limits are classified as Range A and Range B limits. The voltage between 0.950 p.u. and 1.050 p.u. of nominal voltage lies under Range A, and the voltage between 0.917 p.u. and 1.058 p.u. of nominal voltage for 240 V service voltage lies under Range B. Note that the voltage can be within Range B for only a short duration and frequency, and thus corrective measures are necessary to constrict]
+There exists some standards about power system reliability. \\ The American National Standards Institute (\gls{ANSI}), C84.1-2016 \cite{ansic84}, voltage standards for service voltage limits, for example, are classified as Range A and Range B limits. The voltage between $0.950$ \gls{pu} and $1.050$ \gls{pu} of nominal voltage lies under Range A, and the voltage between $0.917$ \gls{pu} and $1.058$ \gls{pu} of nominal voltage for $240$ \gls{V} service voltage lies under Range B. Note that the voltage can be within Range B for only a short duration and frequency, and thus corrective measures are necessary to constrict.
 
 %Determining power flow requires measurements of some power system conditions; utilities measure a combination of quantities such as voltage magnitude \gls{V}, real power \gls{P} and reactive power \gls{Q} of the elements connected to the network. 
 
@@ -201,10 +215,10 @@ In general, the calculation can be extended to any generic $k$ elements, but the
 \label{ch:pandapower}
 This thesis project will be developed with the help of Pandapower. \\
 Pandapower is a Python based power system analysis tool aimed at automation of static and quasi-static analysis and optimization of power systems \cite{pandapower}. \\
-Pandapower is a powerful tool that allows to easily create a model for any power network using customizable predefined data structures, it can solve the \gls{OPF} problems, perform the state estimates, topological graph searches and diagnose the system for possible errors.
+Pandapower is a powerful tool that allows to easily create a model for any power network using customizable predefined data structures, it can solve the \gls{PF} problems, perform the state estimates, topological graph searches and diagnose the system for possible errors.
 
 \subsection{Data structure}
-Pandapower is based on a tabular data structure, where every element type is represented by a table that holds all parameters for a specific component. After the calculation of the power flow, a result table, which contains the element specific results of the different analysis methods, is added to the structure. \\
+Pandapower is based on a tabular data structure, where every element is represented by a table that holds all parameters for a specific component. It is possible to add more information at the data structure, indeed, after the calculation of the power flow, a result table, which contains the element specific results of the different analysis methods, is added to the structure. \\
 The tabular data structure is based on the Python library pandas. It allows storing variables of any data type, so that electrical parameters can be stored together with status variables and meta-data, such as names or descriptions. The tables can be easily expanded and customized by adding new columns without influencing the Pandapower functionality. All inherent pandas methods can be used to efficiently read, write and analyse the network and results data. \\
 
 A Pandapower network is a Python dictionary that holds all information about the network. Most importantly, it includes element and a result tables for each element type, such as line, transformer, switch, loads. The element table holds all input parameters that are specified by the user, while the result table is used to store the results of the power flow calculation. Input and output parameters are identified by the same index in both tables \cite{pandapower}.
@@ -221,40 +235,18 @@ A Pandapower network is a Python dictionary that holds all information about the
 % Pandapower allows to use different type of elements.
 
 \subsection{Network models}
-There are two main ways of how a power system can be defined.
-A commonly used approach is the bus-branch model (BBM), which defines the network as a collection of buses which are connected by generic branches. Branches are modelled with a predefined equivalent circuit and are used to model multiple elements connected to that branch (multi-pole), like lines or transformers. Buses are attributed with power injections to model single-pole elements like loads, generators or capacitor banks. Since the BBM is an accurate mathematical representation of the network, electric equations for power systems analysis can be directly derived from it, but the need to calculate the impedances for each branch and summed power injections at each bus manually can be cumbersome and error-prone, especially for complex elements. \\
-Instead of a BBM, Pandapower uses an element-based model (EBM) to model electric grids. An element is either connected to one or multiple buses and is defined with characteristic parameters. This allows defining the network parameters, such as length and relative impedance for lines, or short circuit voltage and rated apparent power for transformers. While BBM allows only the definition of a summed power injection at each bus, single-pole elements (such as load or generation elements) can be connected to buses independently. This also allows connecting multiple elements at one bus. The element models are then processed internally with the appropriate equivalent circuits to derive a mathematical description of the grid \cite{pandapower}.
+There are two main ways of how a power system can be defined by a user.
+A commonly used approach is the bus-branch model (\gls{BBM}), which defines the network as a collection of buses which are connected by generic branches. Branches are modelled with a predefined equivalent circuit and are used to model multiple elements connected to that branch (multi-pole), like lines or transformers. Buses are attributed with power injections to model single-pole elements like loads, generators or capacitor banks. Since the \gls{BBM} is an accurate mathematical representation of the network, electric equations for power systems analysis can be directly derived from it, but the need to calculate the impedances for each branch and to sum power injections at each bus manually can be cumbersome and error-prone, especially for complex elements. \\
+Instead of a \gls{BBM}, Pandapower uses an element-based model (\gls{EBM}) to model electric grids. An element is either connected to one or multiple buses and is defined with characteristic parameters. This allows defining the network parameters, such as length and relative impedance for lines, or short circuit voltage and rated apparent power for transformers. While \gls{BBM} allows only the definition of a summed power injection at each bus, single-pole elements (such as load or generation elements) can be connected to buses independently. This also allows connecting multiple elements at one bus. The element models are then processed internally with the appropriate equivalent \gls{BBM} circuits to derive a mathematical description of the grid \cite{pandapower}. This decoupling the element model from the electric model allows specifying different equivalent circuits for different analysis functionalities. For example, an external grid element can be modelled as a slack node in the power flow calculation, but as a voltage source with internal impedance in the short circuit calculation.
 
 \subsection{Optimal power flow}
 The power flow is the most important electric analysis function for power system planning. It allows calculating the current flows and voltages in the network. \\
-The Pandapower power flow solver is based on the Newton-Raphson method. The implementation is based on PYPOWER Python library. To solve the \gls{OPF}, the bus constraints include maximum and minimum voltage magnitude, active and reactive power limits can be defined for PV and slack-elements like external grids and generators, but also for PQ-elements, such as loads and static generators. \\
-After defining all the network elements, to run the power flow solver it is just need to execute the command: 
+The Pandapower power flow solver is based on the Newton-Raphson method. The implementation is based on PYPOWER Python library. To solve the \gls{PF}, the bus constraints include maximum and minimum voltage magnitude, active and reactive power limits can be defined for PV and slack-elements like external grids and generators, but also for PQ-elements, such as loads and static generators. \\
+% After defining all the network elements, to run the power flow solver it is just need to execute the command: 
 
-\begin{algorithm}[h]
-\state pandapower.runpp(net, ...)
-\end{algorithm}
-
-\noindent this function takes as input the Pandapower network data structure and some other optional values (for example the algorithm solver, max number of iterations, tolerance and so on). \\
-
-\noindent Internally, Pandapower solves the following optimization problem:
-
-\begin{align*}
-    \min &\sum_{i \: \in \: gen, sgen, load, external grid} P_i \cdot f(P_i) \\
-        \textrm{s.t.} \\
-        & \text{load flow equations} \\
-        & \text{branch constraints} \\
-        & \text{bus constraints} \\
-        & \text{operation power flow equations}
-\end{align*}
-
-\noindent where $P_i$ is the active power of any element and $f()$ is the cost function. Few example of the possible constrains are: 
-\begin{align*}
-        & P_{min,i} \leq P_{g} \le P_{max,i}, \; g \in gen \\
-        & Q_{min,i} \leq Q_{g} \le Q_{max,i}, \; g \in gen \\
-        & V_{min,i} \leq V_{g} \le V_{max,i}, \; i \in bus
-\end{align*}
-
-\noindent It is possible to customize the cost function and choosing between a piece-wise or polynomial cost function. Detailed information about the optimization problem, cost function and network constrains are available in the Pandapower documentation \cite{pandapower2}. \\
+% \begin{algorithm}[h]
+% \state pandapower.runpp(net, ...)
+% \end{algorithm}
 
 After running the power flow calculation, new tables are added to the network data frame.
 \begin{figure}[H]
@@ -263,6 +255,31 @@ After running the power flow calculation, new tables are added to the network da
 \caption{Pandas data frame representation of the Pandapower network after the power flow calculation}
 % \label{fig:gym_anm_net}
 \end{figure}
+
+The power flow calculation on a Pandapower network can fail to converge for a vast variety of reasons, which often makes debugging difficult, annoying and time consuming. To help with that, the diagnostic function automatically checks Pandapower networks for the most common issues leading to errors. It provides logging output and diagnoses with a controllable level of detail.
+
+%%% SAD :'( %%%
+% \noindent this function takes as input the Pandapower network data structure and some other optional values (for example the algorithm solver, max number of iterations, tolerance and so on). \\
+
+% \noindent Internally, Pandapower solves the following optimization problem:
+
+% \begin{align*}
+%     \min &\sum_{i \: \in \: gen, sgen, load, external grid} P_i \cdot f(P_i) \\
+%         \textrm{s.t.} \\
+%         & \text{load flow equations} \\
+%         & \text{branch constraints} \\
+%         & \text{bus constraints} \\
+%         & \text{operation power flow equations}
+% \end{align*}
+
+% \noindent where $P_i$ is the active power of any element and $f()$ is the cost function. Few example of the possible constrains are: 
+% \begin{align*}
+%         & P_{min,i} \leq P_{g} \le P_{max,i}, \; g \in gen \\
+%         & Q_{min,i} \leq Q_{g} \le Q_{max,i}, \; g \in gen \\
+%         & V_{min,i} \leq V_{g} \le V_{max,i}, \; i \in bus
+% \end{align*}
+
+% \noindent It is possible to customize the cost function and choosing between a piece-wise or polynomial cost function. Detailed information about the optimization problem, cost function and network constrains are available in the Pandapower documentation \cite{pandapower2}. \\
 
 \subsection{Time series}
 Pandapower allow running time series analysis for a given network. There are two main requirements for time series calculations:
