@@ -29,7 +29,7 @@ The model consist of: one external grid, one transformer, 70 buses, 61 loads and
 The time series dataset used is taken from the Simbench database. This database refers to some real distribution networks in Germany in the year 2016. SimBench includes multiple time series for one year with 15 min resolution for load, generation and storage units. All time series came as active and reactive power. The time series were grouped by element type, reducing the total number of required time series to a reasonable number, while retaining the possibility to model individual nominal power \cite{Simbenchds0}. All active power values are normalized to the maximum active power value.\\
 
 Power utilities commonly use generic load profiles to group commercial customers with similar load shapes into categories or standard load profiles (\glspl{SLP}). \\
-The most commonly used profiles set is developed by the German Association of Energy and Water Industries (BDEW). It comprises eleven aggregated profiles, one for residential consumers (H0), three for agricultural (L0-L3), and seven for commercial consumers with different opening hours (G0-G6). They are differentiated into workdays, Saturdays and Sundays as well as three seasonal categories winter, summer, and transitional. The set also includes two profiles for street lightning (B0) and band load (G7). \\
+The most commonly used profiles set is developed by the German Association of Energy and Water Industries (\gls{BDEW}). It comprises eleven aggregated profiles, one for residential consumers (H0), three for agricultural (L0-L3), and seven for commercial consumers with different opening hours (G0-G6). They are differentiated into workdays, Saturdays and Sundays as well as three seasonal categories winter, summer, and transitional. The set also includes two profiles for street lightning (B0) and band load (G7). \\
 The generation time series for photovoltaics (\glspl{PV}), wind energy and biomass generated for the SimBench dataset are created using the agent-based simulation tool for optimized grid expansion planning SIMONA. SIMONA's power plant models receive real weather data of Germany from the German Weather Service in 2011 for Wind and 2012 for \gls{PV} time series as input data. \\
 For 2011 and 2012 generation data, the time axis is adjusted to 2016 by shifting days so that they correspond to the nearest weekday\cite{Simbenchds1}.\\
 
@@ -93,20 +93,18 @@ In particular, $x_1\%$ values are randomly selected and set as \emph{NAN} and $x
 \begin{itemize}
     \item for the \emph{NAN} case, it is possible to fill the missing values with the preceding available value. This method, even if simple, is efficient for some reasons: the $\Delta t$ considered is not too large, so it is plausible to expect that loads and generators' values do not change rapidly; it is easy to compute with respect to more complex methods; using only past values allows not to wait for the future values, waiting for the future values may not be acceptable after a deployment of the model.
     
-    \item For the case of time series not available at all, it is possible to use generative models like for example \gls{GAN}.\\
+    \item For the case of time series not available at all, it is possible to use balancing flow techniques or generative models like for example \gls{GAN}.\\
     \emph{Q: in this case, isn't a bit overkilling using such method when the load and generator's profile are equal/similar? \label{q:gan}}
 \end{itemize}
 
 \subsection{Preprocessing}
-For this case, the information used to build the dataset is the voltage magnitude at each buses. The time series will be divided in windows of length, $h$ for the inputs $\textbf{x}$ and length $f$ for the outputs $\textbf{y}$. \\
+For this case, the information used to build the dataset is the voltage magnitude at each buses. The time series will be divided in windows of length, $h$ for the inputs $\textbf{x}$ and length $n$ for the outputs $\textbf{y}$. \\
 
 It is possible to define $\textbf{x}$ as follows:
 
 \begin{equation}
   \begin{aligned}
-    \textbf{x} & \subseteq \textbf{I} \\
-    \textbf{x} & = [S_{t-h+1},S_{t-h+2},\dots,S_{t-1},S_{t}]\\
-        & = 
+    \textbf{x}  = 
         \begin{bmatrix}
         V^1_{t-h+1} & V^1_{t-h+2} & \cdots & V^1_{t-1} & V^1_{t} \\
         & & & & \\
@@ -129,8 +127,7 @@ It is possible to define $\textbf{x}$ as follows:
 \noindent Instead, $\textbf{y}$ can be defined as previously mentioned: 
 \begin{equation}
     \begin{aligned}
-        \textbf{y} & = C \\
-    & = [C_{t+1},C_{t+2}, \dots, C_{t+f-1},C_{t+f}]
+        \textbf{y} = [C_{t+1},C_{t+2}, \dots, C_{t+n-1},C_{t+n}]
     \end{aligned}
 \end{equation}
 \noindent where $C_t$ is the condition of the system at time stamp $t$, with $C_t=1$ if the network is in a critical situation or $C_t=0$ if it is in a normal situation. \\
