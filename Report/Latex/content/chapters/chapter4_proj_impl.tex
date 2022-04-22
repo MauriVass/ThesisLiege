@@ -97,7 +97,7 @@ In particular, $x_1\%$ values are randomly selected and set as \emph{NAN} and $x
     \emph{Q: in this case, isn't a bit overkilling using such method when the load and generator's profile are equal/similar? \label{q:gan}}
 \end{itemize}
 
-\subsection{Preprocessing}
+\subsection{Processing}
 For this case, the information used to build the dataset is the voltage magnitude at each buses. The time series will be divided in windows of length, $h$ for the inputs $\textbf{x}$ and length $n$ for the outputs $\textbf{y}$. \\
 
 It is possible to define $\textbf{x}$ as follows:
@@ -134,30 +134,31 @@ It is possible to define $\textbf{x}$ as follows:
 
 A time step is considered critical when the voltage of at least one of the buses is out of the boundaries $V_i < v^{\text{min}}$ (under voltage) or $V_i > v^{\text{max}}$ (over voltage), where $v^{\text{min}}$ is the minimum acceptable voltage, 0.95 \gls{pu}, and $v^{\text{max}}$ is the maximum one, 1.05 \gls{pu}.
 
-\subsection{Different cases}
-With a similar approach for adding some noise to the time series, it is possible to easily create different cases, changing the scaling factors.
+% \subsection{Different cases}
+% With a similar approach for adding some noise to the time series, it is possible to easily create different cases, changing the scaling factors.
 
-\begin{figure}[H]
-\centering
-    \includegraphics[width=.9\linewidth]{images/MVOberr/Cases.PNG}
-\caption{Possible cases. [\href{https://www.cired-repository.org/bitstream/handle/20.500.12455/526/CIRED \%202019 \%20- \%20139.pdf?sequence=1&isAllowed=y}{ref}] }
-\label{fig:gym_anm_net}
-\end{figure} 
+% \begin{figure}[H]
+% \centering
+%     \includegraphics[width=.9\linewidth]{images/MVOberr/Cases.PNG}
+% \caption{Possible cases. [\href{https://www.cired-repository.org/bitstream/handle/20.500.12455/526/CIRED \%202019 \%20- \%20139.pdf?sequence=1&isAllowed=y}{ref}] }
+% \label{fig:gym_anm_net}
+% \end{figure} 
 
 
 
-\begin{figure}[h]
-\centering
-    \includegraphics[width=.9\linewidth]{images/MVOberr/Load&Gens.png}
-\caption{Sum of load energy consumption and energy generation over the considered year}
-\label{fig:gym_anm_net}
-\end{figure}
+% \begin{figure}[h]
+% \centering
+%     \includegraphics[width=.9\linewidth]{images/MVOberr/Load&Gens.png}
+% \caption{Sum of load energy consumption and energy generation over the considered year}
+% \label{fig:gym_anm_net}
+% \end{figure}
 
-[old] It is possible to notice a higher consumption of energy over the production, especially at the beginning and end of the year, when the sun intensity is not too high. \\
+% [old] It is possible to notice a higher consumption of energy over the production, especially at the beginning and end of the year, when the sun intensity is not too high. \\
 
-\subsubsection{Case: High generation}
+% \subsubsection{Case: High generation}
+\subsection{No partial-observability problem}
 Some cases are tested using scaling factors for load and generation. The high resolution case refers to scaling factors, as follows:
-\begin{algorithm}[h]
+\begin{algorithm}[H]
     \State {scale\_factor\_load = 0.6} 
     
     \State {scale\_factor\_sgen = 1}
@@ -165,77 +166,105 @@ Some cases are tested using scaling factors for load and generation. The high re
 
 \begin{figure}[H]
 \centering
-    \includegraphics[width=.7\linewidth]{images/MVOberr/High gen.png}
-\caption{Case high generation. Voltage buses results obtained running the time series}
+    \includegraphics[width=.9\linewidth]{images/MVOberr/Load&Gens.png}
+\caption{Sum of load energy consumption and energy generation over the considered 90 days}
 \label{fig:gym_anm_net}
 \end{figure}
 
-From the plot above, it is possible to see that there are some overvoltage problems and few under voltage problems. \\
+It is possible to notice a higher consumption of energy over the production.
+
+% \begin{figure}[h]
+% \centering
+%     \includegraphics[width=.9\linewidth]{images/MVOberr/High gen.png}
+% \caption{Case high generation. Voltage buses results obtained running the time series}
+% \label{fig:gym_anm_net}
+% \end{figure}
+
+It is possible to see that there are some overvoltage problems and few under voltage problems. \\
 The problems are highlighted in the following plot.
 
 \begin{figure}[H]
 \centering
-    \includegraphics[width=.8\linewidth]{images/MVOberr/High gen problems.png}
+    \includegraphics[width=.8\linewidth]{images/MVOberr/CriticalSituation.png}
 \caption{In this plot, the maximum and minimum values found for each time step and plotted, so for each time step there are two values representing the highest and lowest value among each bus. The colours, blue and red, represent the normal or critical condition}
 
  \end{figure}
 
 The full dataset is divided in train, validation and test set with the following proportions: 0.7, 0.2, 0.1 respectively. \\
-The dataset is highly imbalanced, since usually networks perform well most of the time and the critical conditions are few:
 
+The dataset is highly imbalanced since the number of times the network is in a critical situation are lower than the number of times the network is under normal situation. This is what usually happens in a power system: networks perform well most of the time and the critical conditions are few.
 
-\begin{algorithm}[h]
-    \State Number of critical situations: 1161, over 35040 time steps, ratio: 3.3\%
+\begin{algorithm}[H]
+    \State Number of critical situations: 940, over 8640 time steps, ratio: 10.9\%
     \State
-    \State Number of critical instants in Train set: 907, ratio: 3.7\%
-    \State Number of critical instants in Val set: 95, ratio: 1.4\%
-    \State Number of critical instants in Test set: 159, ratio: 4.5\%
+    \State Number of critical instants in Train set: 474, ratio: 7.8\%
+    \State Number of critical instants in Val set: 286, ratio: 16.6\%
+    \State Number of critical instants in Test set: 180, ratio: 20.8\%
 \end{algorithm}
 
-The model tested is a multi layer perceptron with two hidden layers of size 192 and 64 and the output size is just one neuron with a Sigmoid activation function.\\
 The data input shape is as follows:
 
-\begin{algorithm}[h]
+\begin{algorithm}[H]
     \State Inputs shape (batch size, time steps, features): (512, 16, 69)
 \end{algorithm}
 
-\noindent with a temporal window $r$ of 16 time steps (4 hours in the past). This input is flatten before being passed to the MLP. \\
-The output shape is just:
-\begin{algorithm}[h]
+Three main \gls{ANN} are tested:
+\begin{itemize}
+    \item \gls{MLP} with two hidden layers of size 192 and 64.
+    \item \gls{CNN} with one convolutional layer and one dense layer with 128 neurons.
+    \item \gls{RNN} with one \gls{LSTM} as recurrent unit and one dense layer with 128 neurons.
+\end{itemize}
+All models have as last output layer a fully connected layer whose output size is just one neuron with a Sigmoid activation function.\\
+
+The test are perform considering a temporal window $r$ of 16 time steps (4 hours in the past), while the output window is just one time step in the future (\emph{can be changed to any number}):
+\begin{algorithm}[H]
     \State Labels shape (batch size, time steps): (512, 1)
 \end{algorithm}
 
-\begin{figure}[H]
+% \begin{figure}[h]
+% \centering
+%     \includegraphics[width=.7\linewidth]{images/MVOberr/DenseNNResult.png}
+% \caption{Training history on the validation set for the \gls{MLP} model}
+%  \end{figure}
+\noindent As expected, the results are not the best. 
+
+\begin{table}[H]
 \centering
-    \includegraphics[width=.6\linewidth]{images/MVOberr/DenseNNResult.png}
-\caption{Training history on the validation set}
- \end{figure}
-\noindent As expected, the results are poor. \\
-I also tried to add some class weights for the less present class, set bias weights in the last fully connected layer, applied differencing method (subtract time step value at time $t$ with the value at time $t+1$; this removes the time dependency and stabilize the mean. Trend and seasonality are reduced in this way) but the results were still not acceptable.\\
+\begin{tabular}{l|l|l|l|}
+\cline{2-4}
+ & \begin{tabular}[c]{@{}l@{}}Max\\ Accuracy\end{tabular} & \begin{tabular}[c]{@{}l@{}}Max\\ Precision\end{tabular} & \begin{tabular}[c]{@{}l@{}}Max\\ Recall\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{MLP} & 0.88 & 0.65 & 0.65 \\ \hline
+\multicolumn{1}{|l|}{CNN} & 0.9 &  0.75 & 0.65  \\ \hline
+\multicolumn{1}{|l|}{RNN} & 0.92 & 0.8  & 0.75 \\ \hline
+\end{tabular}
+% \caption{}
+\label{tab:my-table}
+\end{table}
+% I also tried to add some class weights for the less present class, set bias weights in the last fully connected layer, applied differencing method (subtract time step value at time $t$ with the value at time $t+1$; this removes the time dependency and stabilize the mean. Trend and seasonality are reduced in this way) but the results were still not acceptable.\\
 
-\noindent \emph{Any suggestion? :'( \\ Moreover, what would be an acceptable level of recall/precision/accuracy? I was thinking that since the network can handle a critical situation for some time, if the DSO would curtail some generators, these values should be >0.8 so that it makes sense to trust the model and apply some action.} \label{q:evaluation}
+\noindent \emph{Any suggestion? \\ Moreover, what would be an acceptable level of recall/precision/accuracy? I was thinking that since the network can handle a critical situation for some time, if the DSO would curtail some generators, these values should be >0.8 so that it makes sense to trust the model and apply some action.} \label{q:evaluation}
 
-\newpage
-\subsubsection{Case: High load}
-The high load case refers to scaling factors, as follows:
-\begin{algorithm}[h]
-    \State {scale\_factor\_load = 1} 
+% \newpage
+% \subsubsection{Case: High load}
+% The high load case refers to scaling factors, as follows:
+% \begin{algorithm}[h]
+%     \State {scale\_factor\_load = 1} 
     
-    \State {scale\_factor\_sgen = 0.1}
-\end{algorithm}
+%     \State {scale\_factor\_sgen = 0.1}
+% \end{algorithm}
 
-\begin{figure}[h]
-\centering
-    \includegraphics[width=.7\linewidth]{images/MVOberr/High load.png}
-\caption{Case high load. Voltage buses results obtained running the time series}
-\label{fig:gym_anm_net}
-\end{figure}
+% \begin{figure}[h]
+% \centering
+%     \includegraphics[width=.7\linewidth]{images/MVOberr/High load.png}
+% \caption{Case high load. Voltage buses results obtained running the time series}
+% \label{fig:gym_anm_net}
+% \end{figure}
 
-In this case, there are only under voltage problems. \\
-The problems are highlighted in the following plot.
+% In this case, there are only under voltage problems. \\
+% The problems are highlighted in the following plot.
 
-\begin{figure}[h]
-\centering
-    \includegraphics[width=.8\linewidth]{images/MVOberr/High load problems.png}
-    \caption{Same as above, the maximum and minimum values found for each time step and plotted, so for each time step there are two values representing the highest and lowest value among each bus. The colours, blue and red, represent the normal or problem condition.}
-\end{figure}
+% \begin{figure}[h]
+% \centering
+%     \includegraphics[width=.8\linewidth]{images/MVOberr/High load problems.png}
+%     \caption{Same as above, the maximum and minimum values found for each time step and plotted, so for each time step there are two values representing the highest and lowest value among each bus. The colours, blue and red, represent the normal or problem condition.}
+% \end{figure}

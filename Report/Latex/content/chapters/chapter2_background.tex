@@ -328,64 +328,92 @@ Pandapower has some other features:
 
 
 
-% \section{Machine learning overview}
-% \label{sec:ml}
-% %https://www.digitalocean.com/community/tutorials/an-introduction-to-machine-learning
-% Machine learning is a subset of artificial intelligence that trains a machine to learn. In particular machine learning is the study of how a computer algorithm improves its performances at some task through experience or more precisely:
-% \begin{quote}
-%     \centering
-%     A computer program is said to learn from experience E with respect to some class of tasks T and performance P, if its performance at tasks in T, as measured by P, improves with experience E \cite{mltm}.
-% \end{quote}
-% \noindent where generally, in a machine learning problem, T is a task too complex to be solved with human written algorithms.\\
+\section{Machine learning overview}
+\label{sec:ml}
+%https://www.digitalocean.com/community/tutorials/an-introduction-to-machine-learning
+Machine learning is a subset of artificial intelligence that trains a machine to learn. In particular machine learning is the study of how a computer algorithm improves its performances at some task through experience or more precisely:
+\begin{quote}
+    \centering
+    A computer program is said to learn from experience E with respect to some class of tasks T and performance P, if its performance at tasks in T, as measured by P, improves with experience E \cite{mltm}.
+\end{quote}
+\noindent where generally, in a machine learning problem, T is a task too complex to be solved with human written algorithms.\\
 
-% Machine learning differs from the traditional computer science methods.  In traditional approaches, algorithms are sets of explicitly programmed instructions, or rules, used by computers to solve a problem. Machine learning algorithms instead allow for computers to train on data inputs and use statistical analysis in order to output values or answers. \\
+Machine learning differs from the traditional computer science methods.  In traditional approaches, algorithms are sets of explicitly programmed instructions, or rules, used by computers to solve a problem. Machine learning algorithms instead allow for computers to train on data inputs and use statistical analysis in order to output values or answers. \\
 
-% \emph{image with traditional vs ml approaches}\\
+\emph{image with traditional vs ml approaches}\\
 
-% In machine learning, tasks are generally classified into broad categories. These categories are based on how learning is received or how feedback on the learning is given to the system developed.
-% There are three main type of machine learning algorithms: supervised, unsupervised and reinforcement learning.
+In machine learning, tasks are generally classified into broad categories. These categories are based on how learning is received or how feedback on the learning is given to the system developed.
+There are three main type of machine learning algorithms: supervised, unsupervised and reinforcement learning.
 
 % \subsection{History}
 % A brief timeline with the most significant achievements in the machine learning field: \\
 % in \emph{1943} Walter Pitts and Warren McCulloch published a paper with the first mathematical modelling of a neural network, taking inspiration from the human biology, Pitts thought as human neuron cell as a threshold logic unit working together with other neurons to build a complex system \cite{McCulloch1943}; in \emph{1950} Alan Turing introduce the Turing Test, a method that tests the machine's ability to show human intelligence \cite{turingtest}; in \emph{1952} Arthur Samuel developed a program on an IBM computer that could play checkers and improve over time; in \emph{1956} the Dartmouth College summer AI conference is considered the birthplace of artificial intelligence where McCarthy coins the term for the first time; in \emph{1957} Frank Rosenblatt deigned the first neural network called perceptron \cite{Rosenblatt1958ThePA} which one year later will be tested on computer, achieving good results, it was able to learn to distinguish right punched card form the left punched cards; in \emph{1963} Leonard Uhr and Charles Vossler described the first machine learning algorithm that could adaptively acquire and modify features and thereby overcome the limitations of simple perceptrons of Rosenblatt; in the same year Donald Michie wrote a program that solved the tic-tac-toe game; in \emph{1970} Seppo Linnainmaa published a paper about the reverse mode of automatic differentiation, later this method will be known as back propagation; in \emph{1980} Kunihiko Fukushima published a paper on neocognitron, a hierarchical multilayer \gls{ANN} that can "learn without a teacher", used for patter recognition tasks, such as digits recognition \cite{neocognitron}; in \emph{1982} Hopfield made popular a type of recurrent neural network \cite{hopfield}; in \emph{1989} Chris Watkins introduce Q-learning, a reinforcement learning algorithm that looks for the best action for a given state; in \emph{1992} Gerald Tesauro developed a program capable of playing the game backgammon; in \emph{1995} were published influential papers on random forest and support vector machines; in \emph{1996} IBM's Deep Blue, a chess-playing program beat the chess champion at that time, Garry Kasparov; in \emph{1996} a team led by Yann LeCun released the MNIST dataset which will be widely adopted for handwriting recognition; in \emph{2006} Geoffrey Hinton coined the term "deep learning"; in \emph{2009} Fei-Fei Li published the ImageNet dataset, a large dataset for image recognition; in \emph{2012} Alex Krizhevsky, Ilya Sutskever, Geoffrey Hinton developed the AlexNet neural network that improved the accuracy of image recognition \cite{alexnet}; in \emph{2014} Facebook publish the DeepFace algorithm to identify individual in photos; in \emph{2016} Google's AlphaGo program beat the strongest Go player at that time; \emph{2019} DeepMind's AlphaStar reaches Grandmaster level at StarCraft II, outperforming 99.8 percent of human players.
 
-% \subsection{Supervised learning}
+\subsection{Supervised learning}
 %https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.457.4869&rep=rep1&type=pdf
-% In supervised learning, the goal is to learn a function that maps an input $\textbf{X}$ to an output $\textbf{Y}$ based on example input-output pairs and applying this learnt function to predict the output of future unseen data. \\
+In supervised learning, the goal is to learn a function that maps an input $X$ to an output $Y$ based on example input-output pairs and applying this learnt function to predict the output of future unseen data. \\
 
-% In a supervised learning problem, the goal is to find a function $f : \textbf{X} \rightarrow \textbf{Y}$, from a sample data $S_n$ composed by pairs of (input, output) points:
-% \[
-% S_n = ((x_1,y_1),\dots(x_n,y_n)) \in (X \prod Y)^n
-% \]
-% Typically, $X_i \subset R^n$ and $y_i \subset R$ for regression problems and $y_i$ discrete for classification problems, for example $y_i \in \{0,1\}$ for binary problems. \\
+More formally, in a supervised learning problem, the goal is to find a function $f : X \rightarrow Y$, from a sample data $S_n$ composed by pairs of (input, output) points:
+\[
+S_n = ((x_1,y_1),\dots(x_n,y_n)) \in (X \times Y)^n
+\]
+Typically, $x_i \subset R^n$ and $y_i \subset R$ for regression problems or $y_i$ discrete for classification problems, for example $y_i \in \{0,1\}$ for binary problems. \\
 
-% In the statistical learning settings, an important hypothesis is that the training data is independently and identically distributed (\gls{iid}). from a probability distribution function $P(x,y)$. The goal of the learning is to find a mapping function $f$ that can encode the property of $P(x,y)$ between the inputs x and the output y. \\
+In the statistical learning settings, an important hypothesis is that the training data is independently and identically distributed (\gls{iid}). from a probability distribution function $P(X,Y)$. The goal of the learning is to find a mapping function $f$ that can encode the property of $P(X,Y)$ between the inputs X and the output Y. \\
 
-% Another important concept is to evaluate how well the function f performs, calculating the error or loss between the predicted values f(x) and the actual value y. This error is evaluated with a loss, or cost, function $L: Y \prod Y \rightarrow R^+$. There are many loss functions depending on the problem and requirements, one example is the mean absolute error (\gls{MAE}) loss function:
-% \[
-% L(f(x),y)= \frac{1}{N} \sum_{i=0}^{N} |f(x_i)-y_i| 
-% \]
-% Many supervised learning algorithms consider the minimisation
-% of this loss function as an optimisation problem to find the best predictor among all the possible candidate input-output mappings in the solution space $B$. \\
+Another important concept is to evaluate how well the function f performs, calculating the error or loss between the predicted values f(x) and the actual value y. This error is evaluated with a loss, or cost, function $L: Y \times Y \rightarrow R^+$. There are many loss functions depending on the problem and requirements, one example is the mean absolute error (\gls{MAE}) loss function:
+\[
+L(f(x),y)= \frac{1}{N} \sum_{i=0}^{N} |f(x_i)-y_i| 
+\]
+Many supervised learning algorithms consider the minimisation
+of this loss function as an optimisation problem to find the best predictor among all the possible candidate input-output mappings in the solution space $B$. \\
 
-% With the loss function L, the definition of risk of the function f, also called generalization error, must be introduced:
-% \[
-% R(f) = \int L(f(x),y) dP(x,y). 
-% \]
-% The objective is to find the function f in $B$ that minimise the generalization error, R(f).
+With the loss function L, the definition of risk of the function f, also called generalization error, must be introduced:
+\[
+R(f) = \int L(f(x),y)) \; dP(x,y). 
+\]
+The objective is to find the function f in $B$ that minimise the generalization error, R(f). Since it is not possible to solve R(f), because of the joint probability distribution P(x,y) is unknown, f inferred from available data set $S_n$.
 
-% \subsection{Artificial neural networks}
+\subsection{Artificial neural networks}
+Artificial neural network (\gls{ANN}) is a computational model that consists of several processing elements that receive inputs and deliver outputs based on their predefined activation functions.
+They have been proved to provide a strong approach to approximate functions in order to solve continuous and discrete problems. \\
 
-% \subsubsection{Perceptron}
-% \subsubsection{Multi layer perceptron}
-% \subsubsection{Convolutional neural network}
-% \subsubsection{Recurrent neural network}
+They have been inspired by the biological neural networks that constitute animal brains. For the first time, in \emph{1943} Walter Pitts and Warren McCulloch published a paper with the mathematical modelling of a neural network, taking inspiration from the human biology. They thought a human neuron cell as a threshold logic unit working together with other neurons to build a complex system. This neuron cell collects multiple signals arriving at the dendrites, elaborate them and if the accumulated signal exceeds a certain threshold, an output signal is generated that will be passed on by the axon \cite{McCulloch1943}. %So, the idea behind \glspl{ANN} is to link many simple units (neurons) to develop a more complex system (animal brain).
 
-% \subsection{Metrics}
+\subsubsection{Perceptron}
+The simple unit in an \gls{ANN} is called perceptron. The perceptron is a mathematical function inspired by biological neurons, where each neuron takes inputs, weighs them separately, sums them and pass the sum through a nonlinear function to produce output. This mathematical function can be written as follows:
+\begin{equation} \label{eq:perceptron}
+    o(x_1,x_2,...,x_{n-1}, x_n) = f(\sum_{i=0}^n w_i x_i + w_0)
+\end{equation}
+\noindent where $n$ is the number of connected neurons, $x_i$ is the input from the neuron $i$, $w_i$ is the weight that determines the contribution of input $i$, and $f$ is a nonlinear function, like for example: 
+\begin{equation*}
+  f(x) =
+    \begin{cases}
+      1 \, \text{if} \, x > T \\
+      -1 \, \text{otherwise}
+    \end{cases}       
+\end{equation*}
+\noindent with $T$ a real value representing the threshold that $x$ has to surpass for the function to output 1. In the formula \ref{eq:perceptron} the threshold $T$ is given by the value $w_0$. \\
 
-% \subsection{Unbalanced dataset}
+A single perceptron can be used for classification tasks: it builds a hyperplane that separates the data and output a value between -1 and 1 whether a point is on a side of the hyperplane or on the other side. The perceptron can find a hyperplane in any n-dimensional space as long as this decision boundary exists; this happens if the data points are \emph{linearly separable}.
 
-% \subsection{Splitting dataset}
-% \subsubsection{Cross validation}
+\subsubsection{Multi layer perceptron}
+As said, perceptrons can express only linear decision boundaries. To solve this problem, it is possible to use more perceptrons to represent more complex decision surfaces. \\
+Multi layer perceptron (\gls{MLP}) are constructed by many perceptrons. These neurons are organized in layers: there are always at least two layers, input and output layer, and one or more hidden layers; from here the term \emph{Multi} layer perceptron. Each layer is composed by many neurons and each neuron in one layer is connected to all the neurons in the next layer, so the information from the input layer is propagated to hidden layers and then to the output layer. These model are also known as deep neural network (\gls{DNN}) since the  network's hidden layers make the model 'deep'. \\
+
+The main idea behind stacking many layers is that each layer represents a boundary region, that will pass to another layer to represent a more complex boundary region. Using many layers, like a chain, it is possible to represent very complex decision boundaries. It is possible to write this sequence of operations as follows:
+\begin{equation}\label{eq:chain}
+f(x) = f^{(n)}( f^{(...)}( f^{(1)}(x)) )
+\end{equation}
+\noindent where n is the number of hidden layer, $f^{(n)}(x)$ is the boundary representation at the last hidden layer before the output layer, $f^{(1)}(x)$ is the decision boundary representation at the first hidden layer after the input layer and $f(x)$ is the mapping function that can solve the problem. Equation \ref{eq:chain} can be viewed as a chain, where the output of the first decision boundary is propagated to the next decision boundary function up to the final hidden layer and then to the output layer to get the predictions.
+
+\subsubsection{Convolutional neural network}
+\subsubsection{Recurrent neural network}
+
+\subsection{Back propagation}
+\subsection{Metrics}
+\subsection{Unbalanced dataset}
+\subsection{Splitting dataset}
+\subsubsection{Cross validation}
 
 

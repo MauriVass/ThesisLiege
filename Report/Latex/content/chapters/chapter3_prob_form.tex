@@ -10,11 +10,11 @@ For example, in case of energy generation from the renewable devices higher than
     \item Add another parallel line.
     \item Use \gls{ANM}.
 \end{itemize}
-The first two solution require some infrastructure investment that can be expensive and problematic, especially in the case of overhead or underground lines.\\
+The first two solution require some infrastructure investment that can be expensive and troublesome, especially in the case of overhead or underground lines.\\
 The solution with \gls{ANM} does not require construction cost for the grid company; to keep the network working, in this case, the output of the renewable devices can be curtailed to reduce lines' overloading. \\
 
 In these references, \gls{ANM} schemes maintain the system within operational limits by relying on the curtailment of the generator devices, \glspl{PV}, \glspl{WP} and other \gls{DER} devices. \\
-Curtailment of renewable energy may be considered as counter-intuitive on the environmental point of view, and it may be considered as last option. Indeed, this process can slow down the switch to clean energy, because of the lost of the curtailed energy. \\
+Curtailment of renewable energy may be seen as counter-intuitive on the environmental point of view, and it may be considered as last option. Indeed, this process can slow down the switch to clean energy, because of the lost of the curtailed energy. \\
 
 In this mindset, \gls{ANM} could also be used to control flexible loads and reduce the curtailment effects. These flexible loads, also known as virtual batteries, such as water heaters, air conditioning systems, electric vehicles, can be controlled to be turned on if the energy production is higher than the energy consumption so to avoid curtailment on the generators \cite{flexibleloads}. \\
 Another way to reduce the energy curtailment is to use Flexible Alternating Current Transmission System (\gls{FACTS}) devices. They offer some
@@ -40,8 +40,7 @@ The \gls{DSO} knows some information about the network:
     
     \item The active and reactive power of some loads at each time step. Some values may not available mainly for two reasons: \emph{a)} for that particular load there are no measurements at all due to privacy reasons or for the lack of sensors or \emph{b)} communication problem so the sensor recording was lost.
     
-    \item The type of \gsl{DER} device connected to each bus. If the \gls{DER} device is directly connected to the medium voltage grid, the active power and reactive power are available for each time step. 
-    %\emph{otherwise? only the injection at the 'higher' bus is known?}
+    \item The type of \gsl{DER} device connected to each bus. If the \gls{DER} device is directly connected to the medium voltage grid, the active power and reactive power are considered known. 
 \end{itemize}
 
 This data is used to calculate the power flow of the network and obtain more information like the voltage magnitude at each bus, lines' loading and other values. This calculation can be performed with any power system analysis tool, for this thesis Pandapower will be used.\\
@@ -49,30 +48,45 @@ This data is used to calculate the power flow of the network and obtain more inf
 %Moreover, since the power flow depends on the power injection of the different elements, it is possible to create some possible cases changing the active and reactive power of the devices. These cases can be generated multiplying the time series by some scaling factors to increase or decrease the injection values.  \\
 
 %https://arxiv.org/ftp/arxiv/papers/2102/2102.05657.pdf
-The \gls{DSO} will consider the behaviour of the network over a set of discrete time steps $t \in \{1,2,...,T-1,T\}$ of length $\Delta t$, with, $T \in \mathbb{N}$, the last time step of the time series’s horizon. The operator will predict if the system, in some given $t+n$ future time steps, will be in a critical condition, knowing the system information of the previous time steps. For doing so, the \gls{DSO} will consider the history of the system only for $h$ preceding steps. The system critical state $C$ can be formulated as follows: 
+The \gls{DSO} will consider the behaviour of the network over a set of discrete time steps $t \in \{1,2,...,T-1,T\}$ of length $\Delta t$, with, $T \in \mathbb{N}$, the last time step of the time series’ horizon. A time step is considered as a snapshot of the system at one particular point in time. \\ 
+
+The \gls{DSO} can have access to some information, let's define the information domain as $\textbf{I}$. This information can be divided in static information like the network topology, and the observation $O_t$ collected at every time step $t$ like the loads and generators' active and reactive power and the buses' voltage magnitude, lines' loading and other information. The information at time step $I_t$ can be defined as:
+\begin{align*}
+    I_t & \in \textbf{I}, \text{with} \, t \in \{1,2,...,T-1,T\} \\
+    I_t & = (\text{static information}, O_1, O_2, ...)
+\end{align*}
+
+The operator will predict if the system, in some given $t+n$ future time steps, will be in a critical condition. The network is considered in a critical condition if any of its elements is in an unsafe situation, for example an overvoltage (or under voltage) condition. Let define $\textbf{C}$ as the list of critical situation and $C_t$ the critical situation at time step $t$.  \\
+For predicting whether the system will be in a critical situation or not, the \gls{DSO} will consider the history of the system only for $h$ preceding steps, with $h \in \mathbb{N}^+$. \\
+
+Let also define the function $f_\mathcal{N}$ that given the information from a particular network can elaborate this information and output some values, that represent the forecasting of a critical situation. \\
+It is possible to summarize all the information under the relationship:
 \begin{equation} \label{eq:fmapping}
     %C = f_\mathcal{N}(I_{t-h+1},I_{t-h+2},\dots,I_{t-1},I_{t})
-    \textbf{C} = f_\mathcal{N}(\textbf{I})
+    \hat{\textbf{C}} = f_\mathcal{N}(\textbf{I})
 \end{equation}
-\noindent where:
-\begin{itemize}
-    \item $\textbf{I}$ is the information domain about the network. %and $I_i$ is the information vector, with $I \in \textbf{I}$, of the system at one generic time step $i$.
-    $\textbf{I}$ represent some information like the network topology, the loads and generators' active and reactive power and the buses' voltage magnitude, lines' loading and other information.
+\noindent where $\hat{\textbf{C}}$ represents the forecasted values of the system given the information $\textbf{I}$. A single instance $\hat{C}_{t+i}$ ($\hat{C}_{t+i} \in \{0,1\}$) states if the system is critical ($\hat{C}_{t+i}=1$) or not ($\hat{C}_{t+i}=0$), with $i \in \{1,2,\dots,n-1,n\}$ and $n \in \mathbb{N}^+$. \\
+
+% \begin{itemize}
+    % \item $\textbf{I}$ is the information domain about the network. %and $I_i$ is the information vector, with $I \in \textbf{I}$, of the system at one generic time step $i$.
+    % $\textbf{I}$ represent some information like the network topology, the loads and generators' active and reactive power and the buses' voltage magnitude, lines' loading and other information.
     
-    \item $h$ is the number of how many history time steps will be considered. $h \in \mathbb{N}^+$.
+    % \item $h$ is the number of how many history time steps will be considered. $h \in \mathbb{N}^+$.
     
-    \item $f_\mathcal{N}$ is a generic function that maps the input information of the system to the critical system evaluation, and the subscript $\mathcal{N}$ refers to the fact that the function depends on the particular network considered. \\
-    Henceforth, the function will be referenced without the $\mathcal{N}$ subscript.% $P: \mathbb{R}^{h,n} \mapsto \{0,1\}^f$.
+    % \item $f_\mathcal{N}$ is a generic function that maps the input information of the system to the critical system evaluation, and the subscript $\mathcal{N}$ refers to the fact that the function depends on the particular network considered. \\
+    % Henceforth, the function will be referenced without the $\mathcal{N}$ subscript.% $P: \mathbb{R}^{h,n} \mapsto \{0,1\}^f$.
     
-    \item $\textbf{C}$ represents the forecasted values of the system given the information $\textbf{I}$. A single instance $C_{t+i}$ ($C_{t+i} \in \{0,1\}$) states if the system is critical ($C_{t+i}=1$) or not ($C_{t+i}=0$), with $i \in \{1,2,\dots,n-1,n\}$ and $n \in \mathbb{N}^+$. 
-    %The network is considered in a critical situation when the following condition holds
-\end{itemize}
+%     \item $\hat{\textbf{C}}$ represents the forecasted values of the system given the information $\textbf{I}$. A single instance $\hat{C}_{t+i}$ ($\hat{C}_{t+i} \in \{0,1\}$) states if the system is critical ($\hat{C}_{t+i}=1$) or not ($\hat{C}_{t+i}=0$), with $i \in \{1,2,\dots,n-1,n\}$ and $n \in \mathbb{N}^+$. 
+%     %The network is considered in a critical situation when the following condition holds
+% \end{itemize}
+
+The main objective is to find a good mapping function $f_\mathcal{N}$ such that the actual critical values $\textbf{C}$ and forecasted values $\hat{\textbf{C}}$ are as close as possible.
 
 \section{Solving methodology}
 \label{sec:sm}
-The goal of this thesis is to find a practical function $f$. This function, that can be considered as a pipeline, mainly consist of some steps:
+The goal of this thesis is to find a practical function $f_\mathcal{N}$. This function, that can be considered as a pipeline, mainly consist of some steps:
 \begin{itemize}
-    \item Solve the partial-observability problem, generating realistic time series or filling the missing measurements for the different elements. These time series are needed to run the power flow calculation.
+    \item Solve the partial-observability problem, generating realistic time series or filling the missing measurements for the different elements. These time series are needed to run the power flow calculation. \emph{Remove?}
     \item Process the information to build a dataset, consisting of $\{\textbf{x,y}\}$ couples.
     \item Use the generated dataset to train a classifier that can forecast whether the network will be in a critical situation.
 \end{itemize}
