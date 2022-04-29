@@ -8,12 +8,22 @@ The solving methodology described will be applied to a specific test case.
 \section{MV Oberrhein}
 \label{sec:MVober}
 %https://ietresearch.onlinelibrary.wiley.com/doi/epdf/10.1049/iet-gtd.2019.1602
-The network used for these experiments is the MV Oberrhein network from Pandapower. MV Oberrhein is a real distribution located at Upper Rhine  (German:  Oberrhein),  Germany. network  a generic 20 kV network serviced by two 25 MVA HV/MV transformer stations. The network supplies 141 HV/MV substations and 6 MV loads through four MV feeders. The network layout is meshed, but the network is operated as a radial network with 6 open sectioning points. \\
+The network used for these experiments is the MV Oberrhein network from Pandapower. MV Oberrhein is a real distribution located at Upper Rhine  (German:  Oberrhein),  Germany. This network is a generic 20 kV power system serviced by two 25 MVA HV/MV transformer stations. The network supplies 141 HV/MV substations and 6 MV loads through four MV feeders. The network layout is meshed, but the network is operated as a radial network with some open sectioning points, i.e., redundant lines/cables. This is common in real network: they are meshed but they operate in a radial way.\\
+The grid also includes geographical information of lines and buses and is assembled from openly available data.  \\
+
+A representation of the network can is presented in \ref{fig:MVober}. The blue dots represent the buses where load and/or generators are connected and the yellow squares represent the HV/MV substations.
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.33\linewidth]{images/MVOberr/Full.png}
+\caption{MV Oberrhein network. \emph{add feeders division(?)}}
+\label{fig:MVober}
+\end{figure}
+
 To simplify the situation, the network can be divided in 2 independent parts [\href{https://kobra.uni-kassel.de/bitstream/handle/123456789/12005/kup_9783737608725.pdf?sequence=1&isAllowed=y}{ref}].
 
 \begin{figure}[h]
 \centering
-    \includegraphics[height=0.33\linewidth,width=.32\linewidth]{images/MVOberr/Full.png}
+    % \includegraphics[height=0.33\linewidth,width=.32\linewidth]{images/MVOberr/Full.png}
     \includegraphics[height=0.33\linewidth,width=.32\linewidth]{images/MVOberr/Half1.png}
     \includegraphics[height=0.33\linewidth,width=.32\linewidth]{images/MVOberr/Half2.png}
 \caption{MV Oberrhein network. Used network: middle one \\
@@ -25,7 +35,6 @@ The model consist of: one external grid, one transformer, 70 buses, 61 loads and
 
 \subsection{Simbench database}
 \label{simdata}
-\emph{Q: Better to move it to the 'Background' chapter? A: No}\\
 The time series dataset used is taken from the Simbench database. This database refers to some real distribution networks in Germany in the year 2016. SimBench includes multiple time series for one year with 15 min resolution for load, generation and storage units. All time series came as active and reactive power. The time series were grouped by element type, reducing the total number of required time series to a reasonable number, while retaining the possibility to model individual nominal power \cite{Simbenchds0}. All active power values are normalized to the maximum active power value.\\
 
 Power utilities commonly use generic load profiles to group commercial customers with similar load shapes into categories or standard load profiles (\glspl{SLP}). \\
@@ -35,7 +44,7 @@ For 2011 and 2012 generation data, the time axis is adjusted to 2016 by shifting
 
 \begin{figure}[h]
 \centering
-    \includegraphics[width=.8\linewidth]{images/MVOberr/SimBench time series types.PNG}
+    \includegraphics[width=.9\linewidth]{images/MVOberr/SimBench time series types.PNG}
 \caption{Overview of the SimBench time series type}
 \label{fig:SBtimeseriestype}
 \end{figure}
@@ -50,25 +59,24 @@ As said, each element (load or generator) falls under a specific profile type th
 
 \begin{figure}[H]
 \centering
-    \includegraphics[width=.8\linewidth]{images/MVOberr/SimBench load and generation time series.PNG}
+    \includegraphics[width=.9\linewidth]{images/MVOberr/SimBench load and generation time series.PNG}
 \caption{Load and generations profiles}
 \label{fig:gym_anm_net}
 \end{figure}
 
-In this case, the profile's types for loads and \gls{DER} are chosen so that different profile types are present. \\
-The profiles'distribution in the Pandapower network is as follows:
+In this case, the profile's types for loads and \gls{DER} are chosen so that every profile type is present to have a network as close as possible to a real network. \\
+The profiles' distribution in the Pandapower network is as follows:
 
 \begin{algorithm}[h]
-\State Load elements by type: \{'H0-A': 17, 'H0-B': 12, 'H0-C': 10, 'L2-A': 1, 'H0-G': 6, 'H0-L': 10, 'L2-M': 1, 'L1-A': 1, 'G2-A': 1, 'G6-A': 1, 'G1-B': 1\}
-
-\State{RES elements by type: \{'PV7': 8, 'PV8': 3, 'PV6': 7, 'PV5': 9, 'PV3': 16, 'WP4': 5, 'PV4': 8, 'PV1': 1, 'WP7': 3\}}
+\State Load elements by type: \{{'G3-A': 2, 'H0-L': 3, 'G2-A': 5, 'G3-M': 2, 'G5-A': 2, 'L1-A': 3, 'L0-A': 2, 'H0-C': 6, 'H0-G': 3, 'G1-B': 2, 'G0-A': 4, 'L2-A': 2, 'L2-M': 3, 'G1-C': 2, 'G6-A': 3, 'G0-M': 3, 'G1-A': 3, 'G4-B': 2, 'H0-B': 3, 'G4-A': 3, 'H0-A': 3\}}
+\State RES elements by type: \{'WP4': 6, 'PV5': 8, 'PV8': 8, 'PV1': 6, 'PV7': 6, 'PV3': 7, 'PV6': 6, 'PV4': 7, 'WP7': 6\}}
 \end{algorithm}
+
 \noindent where the letters stand for: commercial enterprises (G), households (H), agricultural holdings (L) and industrial companies (BL/BW)'; with last letters –A to C indicating low consumption, -M medium consumption, and -H high consumption customers. \\
 For the \gsl{DES} device there are photovoltaics \glspl{PV} and wind parks \glspl{WP}. It is possible to notice a bigger presence of \glspl{PV} over \glspl{WP}.\\
+% It is important to mention that the \gls{DES} devices are considered as static generators (sgen)
 
 The loads and \glspl{DER} are chosen so that different profile types are present.
-
-
 
 \begin{figure}[H]
 \centering
@@ -77,9 +85,6 @@ The loads and \glspl{DER} are chosen so that different profile types are present
 \caption{Box plots of load and generation for each profile type}
 \label{fig:gym_anm_net}
 \end{figure}
-
-\emph{Q: Is it ok that elements of the same type have the same profile, so same consumption/generation over time? R: add some noise} \\
-\emph{Q: Also from the documentation the values of the profiles are in MW, but it looks strange that the values never go above 1MW, is it common that facilities (small or big) consumes less than a 1MW? R: it depends on the device. Actually, the values are normalized, so a scaling factor can be used to change the values.} \\
 
 Since the profiles are similar for every element of the same type, some noise is added to increase randomness. In particular, the noise added is a scaling factor in the range [0.85,1.15]. The scaling factor allows avoiding negative values in case of a value lower than 1; subtraction may result in a negative value of reactive power for a particular load. \\
 
@@ -157,21 +162,24 @@ A time step is considered critical when the voltage of at least one of the buses
 
 % \subsubsection{Case: High generation}
 \subsection{No partial-observability problem}
-Some cases are tested using scaling factors for load and generation. The high resolution case refers to scaling factors, as follows:
+As mentioned the time series were normalized so it is possible to use some scaling factors to generate different case. The high generation case refers to scaling factors, as follows:
 \begin{algorithm}[H]
-    \State {scale\_factor\_load = 0.6} 
+    \State {scale\_factor\_load = 1} 
     
-    \State {scale\_factor\_sgen = 1}
+    \State {scale\_factor\_sgen = 1.5}
 \end{algorithm}
+
+These values are chosen to fit the load and generation profile with the peak capacity of the MV Oberrhein network.
 
 \begin{figure}[H]
 \centering
     \includegraphics[width=.9\linewidth]{images/MVOberr/Load&Gens.png}
-\caption{Sum of load energy consumption and energy generation over the considered 90 days}
+\caption{Sum of load energy consumption and energy generation over the considered year}
 \label{fig:gym_anm_net}
 \end{figure}
 
-It is possible to notice a higher consumption of energy over the production.
+The consumption values are as a typical MV network (\cite{MVnetworks}), while the generation is higher. This case can represent a future power network when the number and the performance of \gls{DER} devices increase, so to have a generation of power higher than the demand; especially during the summer period when the consumption is lower and the generation is higher.\\
+Such situation is critical for a network since the surplus energy increase the voltages at the buses that may experience problems or over voltages. \\
 
 % \begin{figure}[h]
 % \centering
@@ -180,7 +188,8 @@ It is possible to notice a higher consumption of energy over the production.
 % \label{fig:gym_anm_net}
 % \end{figure}
 
-It is possible to see that there are some overvoltage problems and few under voltage problems. \\
+To test whether an over voltage situation occurs or not, the \gls{PF} is calculated using the Pandapower solver.\\
+It is possible to see that there are some overvoltage problems. \\
 The problems are highlighted in the following plot.
 
 \begin{figure}[H]
@@ -195,11 +204,10 @@ The full dataset is divided in train, validation and test set with the following
 The dataset is highly imbalanced since the number of times the network is in a critical situation are lower than the number of times the network is under normal situation. This is what usually happens in a power system: networks perform well most of the time and the critical conditions are few.
 
 \begin{algorithm}[H]
-    \State Number of critical situations: 940, over 8640 time steps, ratio: 10.9\%
-    \State
-    \State Number of critical instants in Train set: 474, ratio: 7.8\%
-    \State Number of critical instants in Val set: 286, ratio: 16.6\%
-    \State Number of critical instants in Test set: 180, ratio: 20.8\%
+    \State Number of critical situations: 1284, over 35040 time steps, ratio: 3.7\% \emph{realistic?}
+    \State Number of critical instants in Train set: 646, ratio: 2.6\%
+    \State Number of critical instants in Val set: 193, ratio: 2.8\%
+    \State Number of critical instants in Test set: 445, ratio: 12.7\%
 \end{algorithm}
 
 The data input shape is as follows:
@@ -216,7 +224,7 @@ Three main \gls{ANN} are tested:
 \end{itemize}
 All models have as last output layer a fully connected layer whose output size is just one neuron with a Sigmoid activation function.\\
 
-The test are perform considering a temporal window $r$ of 16 time steps (4 hours in the past), while the output window is just one time step in the future (\emph{can be changed to any number}):
+The test are perform considering a temporal window $h$ of 16 time steps (4 hours in the past), while the output window is just one time step in the future (\emph{can be changed to any number}):
 \begin{algorithm}[H]
     \State Labels shape (batch size, time steps): (512, 1)
 \end{algorithm}
@@ -226,16 +234,62 @@ The test are perform considering a temporal window $r$ of 16 time steps (4 hours
 %     \includegraphics[width=.7\linewidth]{images/MVOberr/DenseNNResult.png}
 % \caption{Training history on the validation set for the \gls{MLP} model}
 %  \end{figure}
-\noindent As expected, the results are not the best. 
 
+input |V|, h = 16 (4 h) \\
 \begin{table}[H]
 \centering
 \begin{tabular}{l|l|l|l|}
 \cline{2-4}
- & \begin{tabular}[c]{@{}l@{}}Max\\ Accuracy\end{tabular} & \begin{tabular}[c]{@{}l@{}}Max\\ Precision\end{tabular} & \begin{tabular}[c]{@{}l@{}}Max\\ Recall\end{tabular} \\ \hline
-\multicolumn{1}{|l|}{MLP} & 0.88 & 0.65 & 0.65 \\ \hline
-\multicolumn{1}{|l|}{CNN} & 0.9 &  0.75 & 0.65  \\ \hline
-\multicolumn{1}{|l|}{RNN} & 0.92 & 0.8  & 0.75 \\ \hline
+ & \begin{tabular}[c]{@{}l@{}}Test\\ Accuracy\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Precision\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Recall\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{MLP} & 0.92 & 0.83 & 0.45 \\ \hline
+\multicolumn{1}{|l|}{CNN} & 0.89 & 0.55 & 0.93  \\ \hline
+\multicolumn{1}{|l|}{RNN} & 0.87 & 0.64 & 0.98 \\ \hline
+\end{tabular}
+% \caption{}
+\label{tab:my-table}
+\end{table}
+
+
+input |V|, h = 4 (1 h) \\
+\begin{table}[H]
+\centering
+\begin{tabular}{l|l|l|l|}
+\cline{2-4}
+ & \begin{tabular}[c]{@{}l@{}}Test\\ Accuracy\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Precision\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Recall\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{MLP} & 0.94 & 0.72 & 0.93 \\ \hline
+\multicolumn{1}{|l|}{CNN} & 0.90 & 0.56 & 0.99  \\ \hline
+\multicolumn{1}{|l|}{RNN} & 0.95 & 0.76 & 0.94 \\ \hline
+\end{tabular}
+% \caption{}
+\label{tab:my-table}
+\end{table}
+
+
+
+input RES p, h = 16 (4 h) \\
+\begin{table}[H]
+\centering
+\begin{tabular}{l|l|l|l|}
+\cline{2-4}
+ & \begin{tabular}[c]{@{}l@{}}Test\\ Accuracy\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Precision\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Recall\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{MLP} & 0.87 & 0 & 0 \\ \hline
+\multicolumn{1}{|l|}{CNN} & 0.87 & 0.49 & 0.47  \\ \hline
+\multicolumn{1}{|l|}{RNN} & 0.87 & 0 & 0 \\ \hline
+\end{tabular}
+% \caption{}
+\label{tab:my-table}
+\end{table}
+
+
+input RES p, h = 4 (1 h) \\
+\begin{table}[H]
+\centering
+\begin{tabular}{l|l|l|l|}
+\cline{2-4}
+ & \begin{tabular}[c]{@{}l@{}}Test\\ Accuracy\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Precision\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Recall\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{MLP} & 0.87 & 0 & 0 \\ \hline
+\multicolumn{1}{|l|}{CNN} & 0.87 & 0.12 & 0.002  \\ \hline
+\multicolumn{1}{|l|}{RNN} & 0.86 & 0 & 0 \\ \hline
 \end{tabular}
 % \caption{}
 \label{tab:my-table}
