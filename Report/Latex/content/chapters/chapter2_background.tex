@@ -1,19 +1,22 @@
 \chapter{Background}
 %https://www.researchgate.net/figure/A-bidirectional-system-with-distributed-generation_fig2_286569839
+% The world is undergoing a process of digitalization that is making the devices used for everyday purposes "smarter". Common examples are the always increasing function available on a smartphone, home automatization and cars.\\
+
+% The power networks are not exceptions.
+
+Nowadays, people take electricity for granted and that flipping the switch will turn the light on instantly and effortless. But the electricity, used for everyday purposes, performs a long journey before arriving to houses or where it is consumed. The electricity circulate in power networks. These power networks include of many elements and devices that are needed to generate, transport and assure that there are no problems in the network, and it works well. However, they are far from perfect, and some issue may arise, for example voltage problem. Voltage problems arise when the voltage through a line or a device is more or less than what it is expected, and these problems should be handled correctly. There are two voltage problems that can raise on a network: under and over voltage problems.\\
+Generally, electronic devices have defined voltage limits they can work in safety conditions. The voltage magnitude in the different parts of a network is not always constant during time, but it fluctuates. These fluctuations, both positive and negative, can be large: when negative, the voltage can drop below the device's minimum allowed voltage limit, in this case there would be an under voltage problem; or when positive, the voltage can increase above its maximum allowed limit, in this case there would be an over voltage problem. \\
+
 The voltage control problem has been studied for years, but it only comes under the spotlight in the last years for the increasing number of distributed resources introduced in the networks. \\
-
-There are two voltage problems that can raise on a network: under and over voltage problems.\\
-Generally, electronic devices have defined voltage limits they work well with. The voltage is not always constant during time, but it fluctuates. These fluctuations can be large, and the voltage can drop below the device's minimum allowed voltage limit, in this case there would be an under voltage problem, or increase above its maximum allowed limit, in this case there would be an over voltage problem. \\
-
 %https://www.electricalindia.in/overvoltage-mitigation-techniques-for-pv-grid/
 The introduction of more and more \gls{DER} devices in the networks increases the number of voltages problems, in particular over voltage problems. These devices generate electric power and when this power is greater than the energy consumed, the extra energy is emitted back in the network.\\ %(why?)
 
 For this reason, it is important to control the voltage in an electrical power system for a regular operation of the electrical equipment. It can prevent damages such as overheating of devices and lines, reduce transmission losses and maintain the ability of the system to last and avoid voltage collapse. Over voltages other than shorten the lifetime of equipment have a negative impact on the stable operation of both supply-side devices and demand-side appliances. \\
 
 %https://electrical-engineering-portal.com/how-reactive-power-is-helpful-to-maintain-a-system-healthy
-It is therefore required to take some actions to avoid these over voltages situations. In particular, it is useful and sometimes needed to reduce the output of renewable generators to prevent possible voltage problems. This means that the output power of these generators is less from what they could otherwise have produced given the available resources. Such prevention is often referred to as the process of \textbf{curtailment}. Said generation curtailment, along with storage and transmission losses, constitute the principal sources of energy loss that could be minimised with smart control system like active network management \gls{ANM} \cite{gym-anm}. \\
+% It is therefore required to take some actions to avoid these over voltages situations. In particular, it is useful and sometimes needed to reduce the output of renewable generators to prevent possible voltage problems. This means that the output power of these generators is less from what they could otherwise have produced given the available resources. Such prevention is often referred to as the process of curtailment. Said generation curtailment, along with storage and transmission losses, constitute the principal sources of energy loss that could be minimised with smart control system like active network management \gls{ANM} \cite{gym-anm}. \\
 
-\noindent Controlling the voltage in an active way has many interesting properties:
+\noindent The control voltage problem has some interesting properties:
 \begin{itemize}
     \item It is a combination of local and global problem: the voltage at each node is influenced by the powers of all other nodes, but the impact depends on the distance between them.
     
@@ -39,8 +42,8 @@ Then the medium supply power is step down again to a low voltage and sent to the
 \centering
     % \includegraphics[width=.9\linewidth]{images/DN/HighMediumLowV.png}
     % \includegraphics[width=.25\linewidth]{images/Background/DN/DN.PNG}
-    \includegraphics[width=.8\linewidth]{images/Background/DN/Basic-Structure-of-the-Electric-Power-System-5.png }
-\caption[Power network distribution]{Power network distribution \cite{USblackout}}
+    \includegraphics[width=.9\linewidth]{images/Background/DN/Basic-Structure-of-the-Electric-Power-System-5.png }
+\caption[Power network distribution]{Typical Power network distribution \cite{USblackout}}
 % \label{fig:gym_anm_net}
 \end{figure}
 
@@ -85,7 +88,7 @@ The objective of a power flow study is to calculate the voltages, magnitude and 
 \subsubsection{Buses}
 The power flow gives information about the steady state of the entire system such as voltage, active, reactive power and lines' loading.\\
 Each bus is associated with four quantities: voltage magnitude \gls{V}, phase angle \gls{angleV}, real power \gls{AP} and reactive power \gls{Q}.
-Depending on the quantity that have been specified, buses in the power system are classified into the following three different types:
+Depending on the quantity that has been specified, buses in the power system are classified into the following three different types:
 \begin{itemize}
     \item \textbf{Slack bus}. It is taken as reference where the magnitude and phase angle of the voltage are specified. Slack bus magnitude considers 1 \gls{pu} and phase angle 0 degrees. This bus provides the additional real and reactive power to supply the transmission losses, since there are unknown until the final solution is obtained.
 
@@ -128,11 +131,13 @@ The definition of the power flow equations is based on Ohm’s Law, which is the
 \begin{itemize}
     \item \textbf{Y} is the bus admittance matrix
     \item \textbf{V} is an array of bus voltages
-    \item \textbf{I} is an array of bus current injections (positive value when generation, and negative value when load)
+    \item \textbf{I} is an array of bus current injections %(positive value when generation, and negative value when load)
 \end{itemize}
 
 The power flow formulation is based on the application of Kirchhoff’s laws to meshed electric networks. The basic concept is that the sum of all flows into each and every node should be equal to zero.\\
-The flows are in complex form, they consist of real and reactive components, or \glspl{W} and \glspl{VAR}. That means that if there are n nodes, then there are n complex equations. The resulting system of equations involves non-linear relationships, making the calculations not easy. Solution methods for this system of equations are primarily iterative with the objective of reducing the sum of flows in all nodes to some acceptably small value known as the mismatch tolerance. \\
+The flows are in complex form, they consist of real and reactive components, or \glspl{W} and \glspl{VAR}. That means that if there are n nodes, then there are n complex equations. 
+%The resulting system of equations involves non-linear relationships, making the calculations not easy.
+Solution methods for this system of equations are primarily iterative with the objective of reducing the sum of flows in all nodes to some acceptably small value known as the mismatch tolerance. \\
 
 All these iterative methods follow the same basic concept: they assume starting values for the dependent variables, primarily voltage at nominal voltage magnitude (i.e. 1 \gls{pu}) and zero phase angle; compute new values for those voltages using the nodal network equation or a numerical approximation and repeat until the convergence criteria are met. \\
 
@@ -246,7 +251,7 @@ A Pandapower network is a Python dictionary that holds all information about the
 \begin{figure}[H]
 \centering
     \includegraphics[width=.6\linewidth]{images/Background/Pandapower/Pandapower_net.pdf}
-\caption{Pandas data frame representation of the Pandapower network}
+\caption[Pandapower data frame]{Pandas data frame representation of the Pandapower network}
 % \label{fig:gym_anm_net}
 \end{figure}
 
@@ -272,7 +277,7 @@ After running the power flow calculation, new tables are added to the network da
 \begin{figure}[H]
 \centering
     \includegraphics[width=.6\linewidth]{images/Background/Pandapower/Pandapower_resnet_big.pdf}
-\caption{Pandas data frame representation of the Pandapower network after the power flow calculation}
+\caption[Pandapower data frame (after the power flow calculation)]{Pandas data frame representation of the Pandapower network after the power flow calculation}
 % \label{fig:gym_anm_net}
 \end{figure}
 
@@ -320,8 +325,7 @@ The time series calculation can be run with the command:
 \begin{figure}[H]
 \centering
     \includegraphics[width=.4\linewidth]{images/Background/Pandapower/run_timeseries_loop.pdf}
-\caption{Pandapower time series calculation loop \cite{pandapowerts}}
-% \label{fig:gym_anm_net}
+\caption[Pandapower time series calculation]{Pandapower time series calculation loop \cite{pandapowerts}}
 \end{figure}
 
 After each step, the elements' values are stored in an output writer object and this allows, after the full calculation is finished, to easily save the values on disk.
@@ -348,7 +352,14 @@ Machine learning is a subset of artificial intelligence that trains a machine to
 
 Machine learning differs from the traditional computer science methods.  In traditional approaches, algorithms are sets of explicitly programmed instructions, or rules, used by computers to solve a problem. Machine learning algorithms instead allow for computers to train on data inputs and use statistical analysis in order to output values or answers. \\
 
-\emph{image with traditional vs ml approaches}\\
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.45\linewidth]{images/Background/ML/MLvstrad.pdf}
+\caption[Traditional and machine learning approaches]{Difference between traditional programming and machine learning approach}
+\label{fig:tradvsml}
+\end{figure}
+
+\noindent \ref{fig:tradvsml} shows the main difference between traditional methods and machine learning approach: when solving a problem, traditional programming required someone (usually an expert in the field) to generate some rules that would be used to get some answers from some input data; while in machine learning the model tries to find some rule that link the input data and the output data (or answers). Machine learning approach has demonstrated to outperform humans in find this kind of rules, moreover no real expert is required. \\
 
 In machine learning, tasks are generally classified into broad categories. These categories are based on how learning is received or how feedback on the learning is given to the system developed.
 There are three main type of machine learning algorithms: supervised, unsupervised and reinforcement learning.
@@ -369,18 +380,18 @@ Typically, $x_i \subset R^n$ and $y_i \subset R$ for regression problems or $y_i
 
 In the statistical learning settings, an important hypothesis is that the training data is independently and identically distributed (\gls{iid}). from a probability distribution function $P(X,Y)$. The goal of the learning is to find a mapping function $f$ that can encode the property of $P(X,Y)$ between the inputs X and the output Y. \\
 
-Another important concept is to evaluate how well the function f performs, calculating the error or loss between the predicted values f(x) and the actual value y. This error is evaluated with a loss, or cost, function $L: Y \times Y \rightarrow R^+$. There are many loss functions depending on the problem and requirements, one example is the mean absolute error (\gls{MAE}) loss function:
+Another important concept is to evaluate how well the function f performs, calculating the error or loss between the predicted values $f(x)$ and the actual value y. This error is evaluated with a loss, or cost, function $L: Y \times Y \rightarrow R^+$. There are many loss functions depending on the problem and requirements, one example is the mean absolute error (\gls{MAE}) loss function:
 \[
 L(f(x),y)= \frac{1}{N} \sum_{i=0}^{N} |f(x_i)-y_i| 
 \]
 Many supervised learning algorithms consider the minimisation
-of this loss function as an optimisation problem to find the best predictor among all the possible candidate input-output mappings in the solution space $B$. \\
+of this loss function as an optimisation problem to find the best predictor among all the possible candidate input-output mappings in the solution space $\mathcal{B}$. \\
 
-With the loss function L, the definition of risk of the function f, also called generalization error, must be introduced:
+With the loss function $L(x,y)$, the definition of risk of the function $f$, also called generalization error, must be introduced:
 \[
 R(f) = \int L(f(x),y)) \; dP(x,y). 
 \]
-The objective is to find the function f in $B$ that minimise the generalization error, R(f). Since it is not possible to solve R(f), because of the joint probability distribution P(x,y) is unknown, f inferred from available data set $S_n$.
+The objective is to find the function f in $\mathcal{B}$ that minimises the generalization error, $R(f)$. Since it is not possible to solve $R(f)$, because of the joint probability distribution $P(x,y)$ is unknown, $f$ inferred from available data set $S_n$.
 
 \subsection{Artificial neural networks}
 Artificial neural network (\gls{ANN}) is a computational model that consists of several processing elements that receive inputs and deliver outputs based on their predefined activation functions.
@@ -401,13 +412,13 @@ The simple unit in an \gls{ANN} is called perceptron. The perceptron is a mathem
       -1 \, \text{otherwise}
     \end{cases}       
 \end{equation*}
-\noindent with $T$ a real value representing the threshold that $x$ has to surpass for the function to output 1. In the formula \ref{eq:perceptron} the threshold $T$ is given by the value $w_0$. \\
+\noindent with $T$ a real value representing the threshold that $x$ has to surpass for the function to output $1$. In the formula \ref{eq:perceptron} the threshold $T$ is given by the value $w_0$. \\
 
 A single perceptron can be used for classification tasks: it builds a hyperplane that separates the data and output a value between -1 and 1 whether a point is on a side of the hyperplane or on the other side. The perceptron can find a hyperplane in any n-dimensional space as long as this decision boundary exists; this happens if the data points are \emph{linearly separable}.
 
 \subsubsection{Multi layer perceptron}
 As said, perceptrons can express only linear decision boundaries. To solve this problem, it is possible to use more perceptrons to represent more complex decision surfaces. \\
-Multi layer perceptron (\gls{MLP}) are constructed by many perceptrons. These neurons are organized in layers: there are always at least two layers, input and output layer, and one or more hidden layers; from here the term \emph{Multi} layer perceptron. Each layer is composed by many neurons and each neuron in one layer is connected to all the neurons in the next layer, so the information from the input layer is propagated to hidden layers and then to the output layer. These model are also known as deep neural network (\gls{DNN}) since the  network's hidden layers make the model 'deep'. The output of a layer before being propagated to the next layer pass through a non-linear activation function, for example Rectified Linear Unit (\gls{Relu}), Sigmoid function or \gls{Tanh}. The non-linearity of the activation function is needed since it introduce more complexity to the model and summing operations of many linear layers the output would still be linear, so a deep network would perform similarly to a single layer network.\\
+Multi layer perceptron (\gls{MLP}) are constructed by many perceptrons. These neurons are organized in layers: there are always at least two layers, input and output layer, and one or more hidden layers; from here the term \emph{multi} layer perceptron. Each layer is composed by many neurons and each neuron in one layer is connected to all the neurons in the next layer, so the information from the input layer is propagated to hidden layers and then to the output layer. These model are also known as deep neural network (\gls{DNN}) since the  network's hidden layers make the model 'deep'. The output of a layer before being propagated to the next layer pass through a non-linear activation function, for example Rectified Linear Unit (\gls{Relu}), Sigmoid function or \gls{Tanh}. The non-linearity of the activation function is needed since it introduce more complexity to the model and summing operations of many linear layers the output would still be linear, so a deep network would perform similarly to a single layer network.\\
 
 The main idea behind stacking many layers is that each layer represents a boundary region, that will pass to another layer to represent a more complex boundary region. Using many layers, like a chain, it is possible to represent very complex decision boundaries. It is possible to write this sequence of operations as follows:
 \begin{equation}\label{eq:chain}
@@ -428,13 +439,13 @@ The output of this linear operation, given by the input $x$ and the weights $w$ 
 
 % There are three main operations in a convolutional layer: \textbf{convolution}, \textbf{activation function} and \textbf{pooling function}. 
 
-The main idea is to \emph{convolve} the input, let's take as reference an image of size $n$, with a filter of size $f$. The filter is applied to an area of the image, and the dot product between the that portion of the input image and the and the filter is computed. Then the filter is shifted to the next portion of the input image, and this way the dot product is calculated for the full width and height of the input.\\
-Since the convolution is a linear operation and since the result of multiple linear operations are still linear, the output of the convolution must go through a non-linear activation function, usually \gls{Relu} in the case of \glspl{CNN}. \\
+The main idea is to \emph{convolve} the input, let's take as reference an image of size $n$, with a filter of size $f$. The filter is applied to an area of the image, and the dot product between the that portion of the input image and the filter is computed. Then the filter is shifted to the next portion of the input image, and this way the dot product is calculated for the full width and height of the input.\\
+Since the convolution is a linear operation, the output of the convolution must go through a non-linear activation function, usually \gls{Relu} in the case of \glspl{CNN}. \\
 
 The output of a convolutional layer is passed to a pooling function. This pooling function aggregates the output of the convolutional layer at a certain location with a value that represents statistically their values. This allows to reduce the data dimensionality, to shorten the training time and reduce overfitting.\\
 Usually, the most common pooling function are max pooling, which takes the max value of the window, or average pooling, which averages the values of the window. \\
 
-With these series of operation, a single convolutional block can extract some important feature from the input data. Generally, many convolutional blocks are stacked together so that each of the next block can represent more and more complex and specific features. \\
+With these series of operation, a single convolutional block can extract some important feature from the input data. Generally, many convolutional blocks are stacked together so that each of the next block can represent more complex and specific features. \\
 The output of the last block is flatten and passed to one or more fully connected layers to get the final prediction (in case of a classification task). \\
 
 \glspl{CNN} have shown to perform very well on some task, especially image classification, and their main advantages are lower number of  weights compared with a \gls{MLP} network and the ability to automatically learn how to extract important features.
@@ -444,9 +455,13 @@ Recurrent neural networks (\glspl{RNN}) are a particular type of \gls{ANN} that 
 
 Generally \glspl{RNN} are represented as follows:\\
 
-\emph{image of a rnn x -> rnn -> y} \\
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.45\linewidth]{images/Background/ML/RNN.pdf}
+\caption[Graph representation of a recurrent neural network]{Graph representation of a \gls{RNN}}
+\end{figure}
 
-\noindent where x is the input \gls{RNN} is the recurrent network and y is the output of the model. The arrow coming out and back in in the RNN block is what the \emph{recurrent} refers to: after receiving an input, at time $x$ the RNN computes some operation and an hidden state, $h_t$, is saved and used for the next input, at time $t+1$.  \\
+\noindent where x is the input \gls{RNN} is the recurrent network and y is the output of the model. The arrow coming out and back in in the RNN block is what the term \emph{recurrent} refers to: after receiving an input, at time $x_t$ the RNN computes some operation and a hidden state, $h_t$, is saved and used for the next input, at time $t+1$.  \\
 
 Mathematically, this process can be represented with the following formula:
 \begin{equation}
@@ -454,12 +469,13 @@ Mathematically, this process can be represented with the following formula:
 \end{equation}
 \noindent where $f_W$ is a function that takes as input the hidden state of the previous time step $h_{t-1}$ and the input at the current time step $x_t$ and it outputs the hidden state at the current time step $h_t$. At the next time step the state $h_t$ would be passed to with the next input $x_{t+1}$ to $f_W$ and so on until all the input time steps are consumed.\\
 
-An important thing to notice is that the function $f_w$ depends on some weights $W$, and these weights are share for every time step of the computation. For example, the function $f_W$ can be represented as:
+An important concept to notice is that the function $f_w$ depends on some weights $W$, and these weights are share for every time step of the computation. For example, the function $f_W$ can be represented as:
 \begin{equation}
     f_W = tanh(W_h \cdot h_{t-1} + W_x \cdot x_{t})
 \end{equation}
 \noindent where $tanh$ is the hyperbolic tangent function, $W_h$ is the matrix of weights that multiplies the hidden state $h_{t-1}$ and $W_x$ is the matrix of weights that multiplies the hidden state $x_{t}$. \\
 
+\paragraph{Long Short-Term Memory networks}
 A popular type of \gls{RNN} is the Long Short-Term Memory (\gls{LSTM}) networks. They were designed to handle the long time dependency of the input. The main difference between a simple \gls{RNN} and a \gls{LSTM} network is the complexity of the hidden block: while in a \gls{RNN} there is only a \gls{Tanh} function, in a \gls{LSTM} there usually is the \gls{Tanh} function and as well some Sigmoid functions. \\
 This more complex model allows the network to keep in memory (as a hidden state) or forget some information that are considered as not too relevant \cite{lstm}.
 
@@ -488,22 +504,52 @@ Accuracy measures how often the model classifies correctly. Accuracy is defined 
 accuracy = \frac{\text{correct predictions}}{\text{total predictions}} = \frac{TP + TN}{TP + TN + FP + FN}
 \]
 \subsubsection{Recall}
-Recall, also called sensitivity or true positive rate, gives how well the model was able to correctly classify the subject of a specific class. Accuracy is defined as the ratio between the number of true positive and the number of subject that were predicted to belong to that class.
+Recall, also called sensitivity or true positive rate, gives the proportion of cases correctly identified by the test as belonging to a specific class. Recall is defined as the ratio between the number of true positive and the number of subject that were predicted to belong to that class.
 \[
 recall = \frac{TP}{TP + FN}
 \]
 \subsubsection{Precision}
-Recall Precision explains how many of the correctly identified as positive out of all the subject predicted to belong to a specific class. Precision is defined as the number of true positives divided by the number of predicted positives.
+% Precision explains the proportion of subject actually belonging to a class and the number of tests that attributes the subjects to that specific class. 
+Precision is defined as the number of true positives divided by the number of predicted positives.
 \[
 precision = \frac{TP}{TP + FP}
 \]
+\subsubsection{Trade-off recall precision}
+Generally there must be a trade-off between recall and precision, or equivalently between the number of false negative and false positive, since increasing the recall (precision) would decrease the precision (recall). \\
+
+This trade-off is even more important when a misclassification would be worse than the other: predicting a subject to have an illness, but actually it is sane (\gls{FP}) or predicting a subject sane, but actually it has an illness (\gls{FN}). In this medical case, \gls{FN} would be a worse case, since the illness of the subject would not be treated while \gls{FP} would have only to take some medications. \\
+In general, the trade-off depends on the business and there is not a specific way to tell a priori if \gls{FP} is a better case than \gls{FN}.
+
 \subsubsection{F1 score}
-It is often convenient to combine recall and precision in a single evaluation metric. It is defined by the harmonic average of the recall and precision.
+There are other situations where having \gls{FP} or \gls{FN} does not change much, they are equally important.\\
+In these cases, it is often convenient to combine recall and precision in a single evaluation metric. It is defined by the harmonic average of the recall and precision.
 \[
 F1score = 2\cdot \frac{precision \cdot recall}{precision + recall}
 \]
 
 \subsection{Unbalanced dataset}
+Unbalanced dataset are common in real life classification problem. An unbalanced dataset is a dataset where a class is unrepresented with respect to the other classes, the class distribution is not even. As it usually happens, the observation in the minority class are the most important and the problem is more sensitive to misclassification of that class: fraud detection, for example.\\
+
+Generally this is a difficult problem since some models may not generalize well: the model receiving more observation of a class tend to be more biased towards it and fails to understand the patters that separate the classes. \\
+In these cases, it is also important to consider which evaluation metric to use. Accuracy metric, in general, is not a meaningful metric, since the model predicting every observation as belonging to the over-represented class would get a high score. More meaningful metrics are precision, recall or an average of the two, for example f1-score.\\
+
+There are few methods to solve or mitigate the unbalanced dataset issue. Some of them will be reported here:
+\begin{itemize}
+    \item Resample the dataset: this can be done, increasing the number of observation in the minority class (\emph{oversampling}) or decreasing the observation in the majority class (\emph{undersampling}).
+        \begin{itemize}
+            \item Undersampling: the main idea is to reduce the number of instances in the majority class to the underrepresented class' level. \\
+            This is usually done with a random downsampling, randomly discarding samples.\\
+            
+            A possible problem with this technique is that it does not care discriminate importance that the different observations may have.\\
+            There are some other more informative techniques like for example nearest neighbours algorithms that try to include samples from every cluster in the majority class.
+            
+            \item Oversampling: opposite to undersampling, its main idea is to increase the number of instances in the minority class. This is usually done generating synthetically observation of the underrepresented class base on the available data. Some popular techniques include Variational Autoencoders (VAE), SMOTE (Synthetic Minority Over-sampling Technique) or MSMOTE (Modified Synthetic Minority Over-sampling Technique).
+        \end{itemize}
+    \item Penalize misclassification: the idea is to penalize misclassification of the minority class more than the majority class. In this way the model should put more focus on the underrepresented observation since a penalty in case of error is larger than the major class error. \\
+    These penalties are commonly referred as weights, and finding the right weights' values is usually challenging.
+\end{itemize}
+
+
 % \subsection{Splitting dataset}
 % \subsubsection{Cross validation}
 

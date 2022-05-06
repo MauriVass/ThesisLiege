@@ -3,14 +3,14 @@
 %phd report
 %https://roadnighttaylor.co.uk/news/what-is-active-network-management/
 The principle of active network management \gls{ANM} is to address congestion and voltage issues via short-term decision making policies \cite{ANMQuentin}. \\
-\gls{ANM} creates a smarter network infrastructure providing automated control of various components in the network and provides the information needed to ensure that every device performs in an optimal manner. This automated control allows grid companies to avoid reinforcing the network with expensive upgrades, so reducing the costs.
+\gls{ANM} creates a smarter network infrastructure providing automated control of various components in the network and provides the information needed to ensure that every device performs in an optimal manner. This automated control allows grid companies to avoid the traditional approach of reinforcing the network with expensive upgrades; so reducing the costs.
 For example, in case of energy generation from the renewable devices higher than what a particular line can handle, a grid company, to avoid congestions and possible overvoltages, has three main options:
 \begin{itemize}
     \item Replace the existing line with a line that can handle a higher voltage. This usually means to replace the existing line with a cable with a larger cross-sectional area.
     \item Add another parallel line.
-    \item Use \gls{ANM}.
+    \item Handle the situation with \gls{ANM}.
 \end{itemize}
-The first two solution require some infrastructure investment that can be expensive and troublesome, especially in the case of overhead or underground lines.\\
+The first two solutions require some infrastructure investment that can be expensive and troublesome, especially in the case of overhead or underground lines.\\
 The solution with \gls{ANM} does not require construction cost for the grid company; to keep the network working, in this case, the output of the renewable devices can be curtailed to reduce lines' overloading. \\
 
 In these references, generally, \gls{ANM} maintains the system within operational limits by relying on the curtailment of the generator devices, \glspl{PV}, \glspl{WP} and other \gls{DER} devices. \\
@@ -22,13 +22,12 @@ level of power flow control and enhance the transfer capability over the existin
 mitigation and renewable energy integration. Particularly, \gls{FACTS} devices allow controlling all parameters that determine active and reactive power transmission: nodal voltages magnitudes and angles and line reactance. These devices replace the mechanical switches with semiconductor switches allowed much faster response times. One problem with these devices is the cost a system operator should sustain to implement them in the network \cite{facts}.
 
 
-% \section{Network topology}
-% \label{sec:nt}
-% A distribution network can be represented as a direct graph $\mathcal{G}(\mathcal{N},\mathcal{E})$, where \gls{N} is a set of positive integers representing the buses (or nodes) in the network, \gls{E} $\subseteq \mathcal{N} \times \mathcal{N}$ is the set of directed edges linking two buses together. The notation \gls{e} $\in \mathcal{E}$ refers to the directed edge with sending bus $i$ and receiving bus $j$. Each bus might be connected to several devices, which may inject or withdraw power from the grid. The set of all devices is denoted by \gls{D} that can be either loads \gls{L} or generators \gls{G}. \\
-% Several variables are associated with each bus $i \in \mathcal{N}$: a bus voltage $\mathcal{V}_i$, a bus current injection $I_i$, an active power injection $P_i$ and reactive power injection $Q_i$. The complex powers $S_i$, $S_d$ $\in \mathbb{C}$ injected into the network at bus $i$, or device $d$, can be obtained by the relation $S_i = P_i + \mathbf{i}Q_i$ or $S_d = P_d + \mathbf{i}Q_d$. \\
-% Similarly, variables $I_{ij}$, $P_{ij}$, $Q_{ij}$ and $S_{ij}$ refer to the direct flow of the quantities in branch $e_{ij}$ as measured at bus $i$ \cite{gym-anm}.\\
-% \emph{I think this part should be somewhere but I am not sure where to put it. Here it looks like it is not properly linked to the previous or following part.}
-
+\section{Network topology}
+\label{sec:nt}
+A distribution network can be represented as a direct graph $\mathcal{G}(\mathcal{N},\mathcal{E})$, where \gls{N} is a set of nodes, also called buses in the network, \gls{E} $\subseteq \mathcal{N} \times \mathcal{N}$ is the set of directed edges linking two buses together, also called lines. The notation \gls{e} $\in \mathcal{E}$ refers to the directed edge with sending bus $i$ and receiving bus $j$. Each bus might be connected to several devices, which may inject or withdraw power from the grid. The set of all devices is denoted by \gls{D} that can be either loads \gls{L} or generators \gls{G}. \\
+% Several variables are associated with each bus $n \in \mathcal{N}$: a bus voltage $\mathcal{V}_i$, a bus current injection $I_i$, an active power injection $P_i$ and reactive power injection $Q_i$. 
+%The complex powers $S_i$, $S_d$ $\in \mathbb{C}$ injected into the network at bus $i$, or device $d$, can be obtained by the relation $S_i = P_i + \mathbf{i}Q_i$ or $S_d = P_d + \mathbf{i}Q_d$. \\
+%Similarly, variables $I_{ij}$, $P_{ij}$, $Q_{ij}$ and $S_{ij}$ refer to the direct flow of the quantities in branch $e_{ij}$ as measured at bus $i$ \cite{gym-anm}.\\
 
 \section{Problem statement}
 \label{sec:ps}
@@ -50,14 +49,24 @@ This data is used to calculate the power flow of the network and obtain more inf
 %https://arxiv.org/ftp/arxiv/papers/2102/2102.05657.pdf
 The \gls{DSO} will consider the behaviour of the network over a set of discrete time steps $t \in \{1,2,...,T-1,T\}$ of length $\Delta t$, with, $T \in \mathbb{N}$, the last time step of the time series’ horizon. A time step is considered as a snapshot of the system at one particular point in time. \\ 
 
-The \gls{DSO} can have access to some information, let's define the information domain as $\textbf{I}$. This information can be divided in static information like the network topology, and the observation $O_t$ collected at every time step $t$ like the loads and generators' active and reactive power and the buses' voltage magnitude, lines' loading and other information. The information at time step $I_t$ can be defined as:
+The \gls{DSO} can have access to some information, let's define the information domain as $\textbf{I}$. This information can be divided in static information like the network topology, and the observation $O_t$ collected at every time step $t$ like the loads and generators' active and reactive power and the buses' voltage magnitude and lines' loading. The information at time step $I_t$ can be defined as:
 \begin{align*}
     I_t & \in \textbf{I}, \text{with} \, t \in \{1,2,...,T-1,T\} \\
-    I_t & = (\text{static information}, O_1, O_2, ...)
+    I_t & = \langle\text{static information}, O_1, O_2, ...\rangle
 \end{align*}
 \noindent In general power networks are not static, since the operators can modify their topology, for example changing the connections due to some incidents on the lines. In this thesis, the network topology is considered as static, so that no changes are applied on the network the during the whole time series' horizon.\\
 
-The operator will predict if the system, in some given $t+n$ future time steps, will be in a critical condition. The network is considered in a critical condition if any of its elements is in an unsafe situation, for example an over voltage (or under voltage) condition. Let define $\textbf{C}$ as the list of critical situation and $C_t$ the critical situation at time step $t$, with $C_t \in \{0,1\}$.  \\
+\noindent An instance of the observation $O_i$ can be:
+\begin{equation*}
+    O_i = \langle P\,^{load}_{l,i}, Q\,^{load}_{l,i}, P\,^{sgen}_{g,i}, V^{bus}_{v,i}, I^{line}_{\%}\,_{e,i} \rangle
+\end{equation*}
+\noindent where $P\,^{load}_{l,i}$ and $Q\,^{load}_{l,i}$ are active and reactive power of load $l$ at time stamp $i$, with $l \in \{0, ..., |\mathcal{L}|\}$ and $|\mathcal{L}|$ the total number of loads in the network; 
+$P\,^{sgen}_{g,i}$ is the active power of the generator $g$ at time $t$, with $g \in \{0, ..., |\mathcal{G}|\}$ and $|\mathcal{G}|$ the total number of generators; 
+$V^{bus}_{b,i}$ is the voltage magnitude (in \gls{pu}) of the bus $b$ at time $t$, with $b \in \{0, ..., |\mathcal{N}|\}$ and $|\mathcal{N}|$ the total number of buses (or nodes);
+$I^{line}_{\%}\,_{e,i}$ is the line loading (in $\%$) of the line $e$ at time $t$, with $e \in \{0, ..., |\mathcal{E}|\}$ and $|\mathcal{E}|$ the total number of lines (or edges)
+.\\
+
+The operator will predict if the system, in some given $t+n$ future time steps, will be in a critical condition. The network is considered in a critical condition if any of its elements is in an unsafe situation, for example an over voltage condition. Let define $\textbf{C}$ as the list of critical situation and $C_t$ the critical situation at time step $t$, with $C_t \in \{0,1\}$.  \\
 For predicting whether the system will be in a critical situation or not, the \gls{DSO} will consider the history of the system only for $h$ preceding steps, with $h \in \mathbb{N}^+$. \\
 
 Let also define the function $f_\mathcal{N}$ that given the information from a particular network can elaborate this information and output some values, that represent the forecasting of a critical situation. \\

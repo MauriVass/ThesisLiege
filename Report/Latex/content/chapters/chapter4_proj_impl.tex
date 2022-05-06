@@ -28,7 +28,6 @@ To simplify the situation, the network can be divided in 2 independent parts [\h
     \includegraphics[height=0.33\linewidth,width=.32\linewidth]{images/MVOberr/Half2.png}
 \caption{MV Oberrhein network. Used network: middle one \\
 TODO add letters}
-\label{fig:gym_anm_net}
 \end{figure}
 
 The model consist of: one external grid, one transformer, 70 buses, 61 loads and 60 renewable generators.
@@ -45,8 +44,7 @@ For 2011 and 2012 generation data, the time axis is adjusted to 2016 by shifting
 \begin{figure}[h]
 \centering
     \includegraphics[width=.9\linewidth]{images/MVOberr/SimBench time series types.PNG}
-\caption{Overview of the SimBench time series type}
-\label{fig:SBtimeseriestype}
+\caption[SimBench time series type]{Overview of the SimBench time series type}
 \end{figure}
 
 The load time series were distinguished between real measured accumulated, highlighted with a dash, and simulated individual consumers, marked with a solid frame in Figure \ref{fig:SBtimeseriestype}. \\
@@ -60,8 +58,7 @@ As said, each element (load or generator) falls under a specific profile type th
 \begin{figure}[H]
 \centering
     \includegraphics[width=.9\linewidth]{images/MVOberr/SimBench load and generation time series.PNG}
-\caption{Load and generations profiles}
-\label{fig:gym_anm_net}
+\caption[SimBench loads and generations standard profiles]{Loads and generations standard profiles}
 \end{figure}
 
 In this case, the profile's types for loads and \gls{DER} are chosen so that every profile type is present to have a network as close as possible to a real network. \\
@@ -82,8 +79,7 @@ The loads and \glspl{DER} are chosen so that different profile types are present
 \centering
     \includegraphics[width=.8\linewidth]{images/MVOberr/BoxPlotLoad.png}
     \includegraphics[width=.8\linewidth]{images/MVOberr/BoxPlotRes.png}
-\caption{Box plots of load and generation for each profile type}
-\label{fig:gym_anm_net}
+\caption[Box plots of load and generation]{Box plots of load and generation for each profile type}
 \end{figure}
 
 Since the profiles are similar for every element of the same type, some noise is added to increase randomness. In particular, the noise added is a scaling factor in the range [0.85,1.15]. The scaling factor allows avoiding negative values in case of a value lower than 1; subtraction may result in a negative value of reactive power for a particular load. \\
@@ -201,7 +197,7 @@ The problems are highlighted in the following plot.
 
 The full dataset is divided in train, validation and test set with the following proportions: 0.7, 0.2, 0.1 respectively. \\
 
-The dataset is highly imbalanced since the number of times the network is in a critical situation are lower than the number of times the network is under normal situation. This is what usually happens in a power system: networks perform well most of the time and the critical conditions are few.
+The dataset is highly imbalanced since the number of times the network is in a critical situation are lower than the number of times the network is under normal situation. This is what usually happens in a power system: networks perform well most of the time with some voltage fluctuations and there are few time instants where the voltage increase bringing the system to a critical condition.
 
 \begin{algorithm}[H]
     \State Number of critical situations: 1284, over 35040 time steps, ratio: 3.7\% \emph{realistic?}
@@ -235,68 +231,87 @@ The test are perform considering a temporal window $h$ of 16 time steps (4 hours
 % \caption{Training history on the validation set for the \gls{MLP} model}
 %  \end{figure}
 
-input |V|, h = 16 (4 h) \\
 \begin{table}[H]
 \centering
-\begin{tabular}{l|l|l|l|}
-\cline{2-4}
- & \begin{tabular}[c]{@{}l@{}}Test\\ Accuracy\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Precision\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Recall\end{tabular} \\ \hline
-\multicolumn{1}{|l|}{MLP} & 0.92 & 0.83 & 0.45 \\ \hline
-\multicolumn{1}{|l|}{CNN} & 0.89 & 0.55 & 0.93  \\ \hline
-\multicolumn{1}{|l|}{RNN} & 0.87 & 0.64 & 0.98 \\ \hline
+\begin{tabular}{|ll|l|l|l|}
+\hline
+\multicolumn{2}{|l|}{x=|V|, n=1}                                    & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\ \hline
+\multicolumn{1}{|l|}{\multirow{3}{*}{\textbf{MLP}}} & h=4 (1h)   & 0.786              & 0.924           & \textbf{0.849}    \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=16 (4h)  & 0.809              & 0.874           & 0.840             \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=96 (24h) & 0.651              & 0.688           & 0.669             \\ \hline
+\multicolumn{1}{|l|}{\multirow{3}{*}{\textbf{CNN}}} & h=4 (1h)   & 0.903              & 0.715           & \textbf{0.798}    \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=16 (4h)  & 0.645              & 0.804           & 0.716             \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=96 (24h) & 0.612              & 0.766           & 0.681             \\ \hline
+\multicolumn{1}{|l|}{\multirow{3}{*}{\textbf{RNN}}} & h=4 (1h)   & 0.846              & 0.832           & 0.842             \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=16 (4h)  & 0.883              & 0.795           & 0.837             \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=96 (24h) & 0.816              & 0.915           & \textbf{0.862}    \\ \hline
 \end{tabular}
-% \caption{}
+\caption{}
+\label{tab:my-table}
+\end{table}
+
+Different weights to penalize errors on the underrepresented class
+\begin{table}[H]
+\centering
+\begin{tabular}{|ll|l|l|l|}
+\hline
+\multicolumn{2}{|l|}{x = |V|, n=1} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\ \hline
+\multicolumn{1}{|l|}{\multirow{3}{*}{\textbf{MLP}}} & h=4 (1h)   & 0.899 & 0.762 & 0.825 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=16 (4h)  & 0.819 & 0.872 & 0.844 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=96 (24h) & 0.642 & 0.915 & 0.754 \\ \hline
+\multicolumn{1}{|l|}{\multirow{3}{*}{\textbf{CNN}}} & h=4 (1h)   & 0.807 & 0.919 & 0.859 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=16 (4h)  & 0.701 & 0.795 & 0.745 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=96 (24h) & 0.664 & 0.760 & 0.709 \\ \hline
+\multicolumn{1}{|l|}{\multirow{3}{*}{\textbf{RNN}}} & h=4 (1h)   & 0.826 & 0.874 & 0.849 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=16 (4h)  & 0.864 & 0.813 & 0.838 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=96 (24h) & 0.870 & 0.811 & 0.839 \\ \hline
+\end{tabular}
+\caption{}
 \label{tab:my-table}
 \end{table}
 
 
-input |V|, h = 4 (1 h) \\
+
 \begin{table}[H]
 \centering
-\begin{tabular}{l|l|l|l|}
-\cline{2-4}
- & \begin{tabular}[c]{@{}l@{}}Test\\ Accuracy\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Precision\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Recall\end{tabular} \\ \hline
-\multicolumn{1}{|l|}{MLP} & 0.94 & 0.72 & 0.93 \\ \hline
-\multicolumn{1}{|l|}{CNN} & 0.90 & 0.56 & 0.99  \\ \hline
-\multicolumn{1}{|l|}{RNN} & 0.95 & 0.76 & 0.94 \\ \hline
+\begin{tabular}{|ll|l|l|l|}
+\hline
+\multicolumn{2}{|l|}{x = P RESs, n=1} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\ \hline
+\multicolumn{1}{|l|}{\multirow{3}{*}{\textbf{MLP}}} & h=4 (1h)   & 0.368 & 0.755 & 0.495 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=16 (4h)  & 0.377 & 0.789 & 0.510 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=96 (24h) & 0.386 & 0.921 & 0.544 \\ \hline
+\multicolumn{1}{|l|}{\multirow{3}{*}{\textbf{CNN}}} & h=4 (1h)   & 0.371 & 0.726 & 0.491 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=16 (4h)  & 0.355 & 0.872 & 0.505 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=96 (24h) & 0.485 & 0.730 & 0.583 \\ \hline
+\multicolumn{1}{|l|}{\multirow{3}{*}{\textbf{RNN}}} & h=4 (1h)   & 0.335 & 0.921 & 0.492 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=16 (4h)  & 0.431 & 0.575 & 0.493 \\ \cline{2-5} 
+\multicolumn{1}{|l|}{}                              & h=96 (24h) & 0.415 & 0.842 & 0.556 \\ \hline
 \end{tabular}
-% \caption{}
+\caption{}
+\label{tab:my-table}
+\end{table}
+
+x = [sum\_loads\_p, sum\_loads\_q, sum\_sgen\_p] at every time step. Similar as in: \href{https://arxiv.org/abs/2008.09384}{ref}
+\begin{table}[H]
+\centering
+\begin{tabular}{|ll|l|l|l|}
+\hline
+\multicolumn{2}{|l|}{x = |V|, n=4} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\ \hline
+\multicolumn{1}{|l|}{\textbf{MLP}} & h=16 (4h) & 0.745 & 0.730 & 0.737 \\ \hline
+\multicolumn{1}{|l|}{\textbf{CNN}} & h=16 (4h) & 0.804 & 0.720 & 0.756 \\ \hline
+\multicolumn{1}{|l|}{\textbf{RNN}} & h=16 (4h) & 0.796 & 0.765 & 0.780 \\ \hline
+\multicolumn{1}{|l|}{\textbf{RF}}  & h=16 (4h) & 0.835 & 0.665 & 0.740 \\ \hline
+\end{tabular}
+\caption{}
 \label{tab:my-table}
 \end{table}
 
 
-
-input RES p, h = 16 (4 h) \\
-\begin{table}[H]
-\centering
-\begin{tabular}{l|l|l|l|}
-\cline{2-4}
- & \begin{tabular}[c]{@{}l@{}}Test\\ Accuracy\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Precision\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Recall\end{tabular} \\ \hline
-\multicolumn{1}{|l|}{MLP} & 0.87 & 0 & 0 \\ \hline
-\multicolumn{1}{|l|}{CNN} & 0.87 & 0.49 & 0.47  \\ \hline
-\multicolumn{1}{|l|}{RNN} & 0.87 & 0 & 0 \\ \hline
-\end{tabular}
-% \caption{}
-\label{tab:my-table}
-\end{table}
-
-
-input RES p, h = 4 (1 h) \\
-\begin{table}[H]
-\centering
-\begin{tabular}{l|l|l|l|}
-\cline{2-4}
- & \begin{tabular}[c]{@{}l@{}}Test\\ Accuracy\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Precision\end{tabular} & \begin{tabular}[c]{@{}l@{}}Test\\ Recall\end{tabular} \\ \hline
-\multicolumn{1}{|l|}{MLP} & 0.87 & 0 & 0 \\ \hline
-\multicolumn{1}{|l|}{CNN} & 0.87 & 0.12 & 0.002  \\ \hline
-\multicolumn{1}{|l|}{RNN} & 0.86 & 0 & 0 \\ \hline
-\end{tabular}
-% \caption{}
-\label{tab:my-table}
-\end{table}
 % I also tried to add some class weights for the less present class, set bias weights in the last fully connected layer, applied differencing method (subtract time step value at time $t$ with the value at time $t+1$; this removes the time dependency and stabilize the mean. Trend and seasonality are reduced in this way) but the results were still not acceptable.\\
 
-\noindent \emph{Any suggestion? \\ Moreover, what would be an acceptable level of recall/precision/accuracy? I was thinking that since the network can handle a critical situation for some time, if the DSO would curtail some generators, these values should be >0.8 so that it makes sense to trust the model and apply some action.} \label{q:evaluation}
+\noindent \emph{Any suggestion? \\ Moreover, what would be an acceptable level of recall/precision/accuracy? I was thinking that since the network can handle a critical situation for some time, if the DSO would curtail some generators, these values should be >0.8 so that it makes sense to trust the model and apply some action.} \label{q:evaluation}\\
+
+\noindent \emph{(In case of over voltage) Predicting which bus is in a critical situation?}
 
 % \newpage
 % \subsubsection{Case: High load}
