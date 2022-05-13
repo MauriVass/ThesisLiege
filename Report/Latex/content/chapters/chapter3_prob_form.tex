@@ -24,7 +24,8 @@ mitigation and renewable energy integration. Particularly, \gls{FACTS} devices a
 
 \section{Network topology}
 \label{sec:nt}
-A distribution network can be represented as a direct graph $\mathcal{G}(\mathcal{N},\mathcal{E})$, where \gls{N} is a set of nodes, also called buses in the network, \gls{E} $\subseteq \mathcal{N} \times \mathcal{N}$ is the set of directed edges linking two buses together, also called lines. The notation \gls{e} $\in \mathcal{E}$ refers to the directed edge with sending bus $i$ and receiving bus $j$. Each bus might be connected to several devices, which may inject or withdraw power from the grid. The set of all devices is denoted by \gls{D} that can be either loads \gls{L} or generators \gls{G}. \\
+A power network can be represented as a direct graph $\mathcal{G}(\mathcal{N},\mathcal{E})$, where \gls{N} is a set of nodes, also called buses in the network, \gls{E} $\subseteq \mathcal{N} \times \mathcal{N}$ is the set of directed edges linking two buses together, also called lines. The notation \gls{e} $\in \mathcal{E}$ refers to the directed edge with sending bus $i$ and receiving bus $j$. Each bus might be connected to several devices, which may inject or withdraw power from the grid. The set of all devices is denoted by \gls{D} that can be either loads \gls{L} or generators \gls{G}. \\
+Power networks generally operate radially as a tree, with the root the substation. The root substation can be seen as a slack bus, where the voltage magnitude \gls{V} and the phase angle \gls{angleV} are considered constants.
 % Several variables are associated with each bus $n \in \mathcal{N}$: a bus voltage $\mathcal{V}_i$, a bus current injection $I_i$, an active power injection $P_i$ and reactive power injection $Q_i$. 
 %The complex powers $S_i$, $S_d$ $\in \mathbb{C}$ injected into the network at bus $i$, or device $d$, can be obtained by the relation $S_i = P_i + \mathbf{i}Q_i$ or $S_d = P_d + \mathbf{i}Q_d$. \\
 %Similarly, variables $I_{ij}$, $P_{ij}$, $Q_{ij}$ and $S_{ij}$ refer to the direct flow of the quantities in branch $e_{ij}$ as measured at bus $i$ \cite{gym-anm}.\\
@@ -175,3 +176,165 @@ This database, given by the couple of elements \{\textbf{x,y}\}, will be used wi
 % \end{aligned}
 % \end{equation*}
 
+
+\section{Reinforcement learning}
+\label{sec:rl}
+\subsection{Literature review}
+Brief literature review for RL application on power networks (paper's link in the titles): \\
+
+\begin{itemize}
+    \item \href{https://ietresearch.onlinelibrary.wiley.com/doi/epdf/10.1049/iet-stg.2019.0196}{\textbf{Reinforcement learning for control of flexibility providers in a residential microgrid}}\\
+    
+    A multiagent setting, two RL agents – battery agent and HP (heat pump) agent are considered to control the operation of the battery and HP.\\
+    Small ‘micro grid’ (<10 devices)\\
+    
+    HP agent: The goal of the heat pump agent is to maximize self-consumption and to minimise the electricity cost while maintaining the indoor temperature within the comfort boundaries chosen by the end user.\\
+    Battery agent: The battery agent controls the operation of the battery to ensure that all the power not consumed by the baseload and/or the HP is stored in the battery. Also, in situations of high electricity prices and low PV generation, the battery agent discharges the battery to match the load.\\
+    
+    \textbf{State}: different for battery and HP (and for single or multiagent) but basically they use active power for gens (PV), the active power of the load, and the cost for buying electricity.\\
+    \textbf{Action}: (discrete) charge/discharge devices\\
+    \textbf{Cost function} ∝ energy produced x energy cost (production) + energy used x energy cost (consumption)\\
+    \textbf{Models}: Q-network\\
+    
+    \item \href
+    {https://ieeexplore.ieee.org/document/9399637}
+    {\textbf{Data-Driven Multi-Agent Deep Reinforcement Learning for Distribution System Decentralized Voltage Control With High Penetration of PVs}}\\
+    
+    The proposed multiagent deep reinforcement learning (MADRL) can coordinate both the real and reactive power control of PVs with existing static var compensators and battery storage system (BSS) to minimize the voltage deviation while maintaining a minimum amount of active power curtailment of PVs Action each agent represents a subnetwork.(342-node systems)\\
+    
+    \textbf{State}: active and reactive power of loads, active power of the generators. \\
+    \textbf{Action}: not well defined\\
+    \textbf{Reward}: voltage fluctuation + curtailed energy\\
+    \textbf{Models}: SAC and MATD3 \\
+    \textbf{Training}: trained for 50000 episodes. Exploration first 1000 episode.
+
+    
+    \item \href
+    {https://arxiv.org/abs/2103.07932}
+    {\textbf{Gym-ANM: Reinforcement Learning Environments for Active Network Management Tasks in Electricity Distribution Systems}}\\
+    We seek to promote the application of RL techniques to active network management (ANM) problems, to design a control schemes that modulate the generators, the loads, and/or the DES devices connected to the grid. This is done to avoid problems at the distribution level and maximize profitability through, e.g., avoidable energy loss.\\
+    \\\textbf{State}: p and q loads, max production of gens
+    \\\textbf{Action}: a value between the bottom and upper limit on the active and reactive power injection for each generator g. The action space is normalized in [-1,1](?)
+    \\\textbf{Reward}: power loss at each instant + penalty term for violation of constraints (line loading, bus voltage, ...)
+    \\\textbf{Models}: PPO (Proximal Policy Optimization), SAC (Soft Actor-Critic) both with a continuos action space\\
+    
+    I like the reward function, I am not sure about the action space.
+    
+    
+    \item \href
+    {https://arxiv.org/pdf/1910.05907.pdf}
+    {\textbf{Coordination of PV Smart Inverters Using Deep Reinforcement Learning for Grid Voltage Regulation}}\\
+    a deep reinforcement learning (DRL) based algorithm is developed and implemented for coordinating multiple SIs to ensure voltage operation limits of the grid are meet. (37 node test feeder)\\
+    
+    \emph{"The other objective is to minimize the PV production curtailment, which is assured by minimization of reactive power utilization." \\
+    Could you clarify the relationship between curtailment and reactive power?} \\
+    
+    \\\textbf{State}: voltage magnitudes of each bus, real and reactive power of PVs and loads
+    \\\textbf{Action}: we consider SI (smart inverter) reactive power outputs as actions
+    \\\textbf{Reward}:the objectives are mitigation of voltage violations and minimization of PV generation curtailment. A large penalty for violating voltage limits and a negative reward proportional to total reactive power dispatched by SIs.
+    \\\textbf{Models}: deep deterministic policy gradient (DDPG)
+    \\\textbf{Training}: 1500 episodes, each of 1000 iterations
+    \\Nice results
+    
+    \item \href
+    {https://www.researchgate.net/publication/341779029_A_Multi-Agent_Deep_Reinforcement_Learning_Based_Voltage_Regulation_Using_Coordinated_PV_Inverters}
+    {\textbf{A Multi-Agent Deep Reinforcement Learning Based Voltage Regulation Using Coordinated PV Inverters}}\\ 
+    This paper proposes a multi-agent deep reinforcement learning-based approach (MADRL) for distribution system voltage regulation with high penetration of photovoltaics (PV). (33-bus system, and 123-bus system)\\
+    
+    
+    \\\textbf{State}: active and reactive power of loads and active power of gens(PV)
+    \\\textbf{Action}: reactive power gens
+    \\\textbf{Reward}: voltage deviation (?)
+    \\\textbf{Models}: deep deterministic policy gradient (DDPG)
+    \\\textbf{Training}: 14000 episodes, each of 24 iterations (hourly). Exploration first 2000 ep
+\end{itemize}
+
+
+\subsection{My proposal}
+Using RL to control the gens (PV and WP) active power output.\\
+
+\noindent \textbf{State}: active and reactive power of loads and active power of gens at time step $t$ OR from time step $t-h+1$ to time step $t$ ($h$ time steps). \\
+\[
+s_t = [P_{load,t},Q_{load,t},P_{gen,t}] \cdot h
+\]
+\noindent this state would be a list of continuos variables of size 182 x h (61 + 61 + 60); with $h=4$ (consider only 1 h network history) the dimension of the state space would be 728 continuous variables.\\
+
+\noindent\textbf{Action}: the curtailment of the active power of each generator at time $t+1$ in percentage
+\[
+a_t = [P^{cur\%}_{load,t}]
+\]
+\noindent this state would be a list of continuos variables of size 60 (call it |A|). \\
+OR \\
+The same as above, but with one more boolean variable that indicates whether in the next time step ($t+1$) there will be a critical situation. "Double stream network"\\
+
+In the last case, the problem would be both a regression and classification problem. The results can be compared with the work I have already done on the classification part, if the results are similar that would solve two problems with a single model.\\
+I think it is an interesting idea also because I have not found many RL problems with a classification and regression problem. \\
+
+There are few problems I can think about: 1) RL algorithms for classification are slower and perform worse than similar models trained with standard supervised learning; 2) so it may not converge; 3) a custom model should be built that it may not be a problem.\\
+
+For the regression problem I am not sure about the range of the action space: should it be [0,1] (it means that there are no constraints and that we can handle a 100\% energy loss, as long as the network is safe), [0,0.1] (we want a curtailment less than 10\% of the total production) or other values? A possible problem may be that even if the actor decides to curtail, in a given time step, many generators, by a large value the network may still be in a critical situation. \\
+
+So the question:\\
+\emph{Q: How much can generators be curtailed? \\ "For example, PSCO has reported periods of very high levels of wind generation relative to total demand and has curtailed on the order of 1\%–2\% of wind generation annually in recent years. ...  Curtailment levels have generally been 4\% or less of wind energy generation in regions where curtailment has occurred." \href{https://www.nrel.gov/docs/fy14osti/60983.pdf}{[ref]}) }\\
+
+\noindent \textbf{Reward}: 
+Since it is important it may be defined better while proceeding, but here is a possible implementation:
+\[
+r_t(s,a) = - \alpha \cdot \mathtext{total\_energy\_loss} - \beta \cdot \mathtext{network\_violations} = -
+\alpha \cdot \sum^{|A|}_{i=0} a_i + \beta \cdot \phi(s,a)
+\]
+\noindent where $r_t(s,a)$ is the reward at time $t$ given the state $s$ and action $a$; $\mathtext{total\_energy\_loss}$ is the energy lost in that time step (sum of all curtailed values, basically np.sum($a_t$)); $\mathtext{network\_violations}$ is a violation term to punish the agent if the network is in a critical situation (voltage above the limit, line loading above the limit, ...); $\alpha$ and $\beta$ are two scaling factors. In case of the double stream network, the classification variable can be used in the reward function as well; something like "$- \gamma \cdot |y_t - \hat{y}_t|$", with $y_t$ the prediction of the model and $\hat{y}_t$ the actual label (known from the power flow calculation) and $\gamma$ another scaling factor.\\
+
+I am not sure with this reward function the agent may converge because is not very specific and does not punish the agent correctly. Maybe it would help to have a $\hat{a}_t$ so to compare with $a_t$ but maybe this is not feasible, and it looks a lot like a supervised problem(?).\\
+So the question:\\
+\emph{Q: Is there a way (droop-based method? \href{https://par.nsf.gov/servlets/purl/10082801}{[ref]}) to analytically calculate the active and reactive power of loads and generators to avoid overvoltage problems? \\
+This would also allow shaping a better reward function and improve convergence}\\
+
+\noindent \textbf{Model}: not sure for now, both state and action are continuos so a model that can handle this kind of values must be needed, so some actor-critic method (PPO, DDPG)\\
+
+\noindent \textbf{Training}: some episode, with each episode given all the time steps\\
+
+\noindent \textbf{General thoughts}: given the time series for p and q of the loads and p of the generators, the power flow can be calculated and the buses' voltage and can be used to check whether the agent (after training) improved the network situation (the number of critical situation decreased). \\
+
+The dataset can be divided in training and test set: the training can be used for each episode; it would work also a data augmentation since at each episode the agent would pick a different action (with high probability) so increasing the size of the dataset; the test set can be used at the end of each episode to test the model and evaluate its performances. \\
+
+There should not be too many problems using the models already implemented: MLP, CNN, and RNN.\\
+
+Probably the pandapower core library should be changed to have a custom control of the time series execution. This should not be a problem since pandapower is open source and the code is available on GitHub. \\
+
+\noindent \textbf{Possible problems:}
+\begin{enumerate}
+    \item Too high state space (curse of dimensionality)
+    \item Action space should be better defined.\\
+    Trying running a PF with a reduced energy production by 5\% of all gens reduced the critical situation by 0.8\% (from 3.8\% to 3\%); so maybe it is not the right direction (?)
+    \item No converging model, for some reasons: not accurate reward function, too much time required
+    \item Messing up with pandapower code and obtaining wrong results
+    \item Computationally expensive
+    \item Remaining time may not be enough
+\end{enumerate}
+
+\noindent \textbf{Updates:}
+\begin{enumerate}
+    \item I tried to implement the code needed (both change Pandapower code and implementing the DDPG agent code)
+    \item the code looks like it is working fine
+    \item The training time seems not too bad: it takes 3 more time (around 1 h) than a normal run; with a MLP with 2 hidden layers with 400 and 300 neurons, trained every 2 time steps.\\
+    It takes 39 mins for training (70\% of all time series, repeated for 2 episodes) and 9 mins for testing (the remaining 30\% of the time series)
+    \item I tested a simple reward function:
+    \begin{align*}
+        r = &- alpha * np.sum(action) \\
+            &- beta*[|1.05-np.max(vm\_pus)|+\frac{1}{2}*|0.95-np.min(vm\_pus)|]^2
+    \end{align*}
+    with alpha=1, beta=500 (the difference between voltage is quite small), action is the list of res curtailment values([0,100\%]), vm\_pus is the list buses' voltage magnitude after the PF calculation. The idea to punish the agent to curtail too much the generation (np.sum(action)) and punish it if the voltage is out of the constraints.
+    \item The trained model was able to reduce the number of overvoltages on the test set:\\
+    from 5.9\% (634 overvoltages over 10512 time steps) to 5.1\% (541 overvoltages). 
+    \item I did not store information about the steps (rewards, ...) so I do not know the total power loss. Another interesting step would be to understand if the agent curtail the generators even if it is not needed. 
+\end{enumerate}
+
+
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.45\linewidth]{images/RL/before.png}
+    \includegraphics[width=.45\linewidth]{images/RL/after.png}
+\caption{Before (left) and after (right) the agent control. }
+
+ \end{figure}
