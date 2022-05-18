@@ -8,7 +8,7 @@ from Networks import ActorNetwork, CriticNetwork
 class Agent:
 	def __init__(self, input_dims, alpha=0.001, beta=0.003, gamma=0.99,
 				n_actions=2, scale_actions=1, max_size=1000000, tau=0.005,
-				fc1=400, fc2=300, batch_size=64, noise=0.1):
+				fc1=400, fc2=300, batch_size=64, noise=0.01):
 		self.gamma = gamma
 		self.tau = tau
 		self.memory = Experiences(max_size, input_dims, n_actions)
@@ -16,10 +16,13 @@ class Agent:
 		self.n_actions = n_actions
 		self.scale_actions = scale_actions
 		self.noise = noise
+		self.min_noise = 0.0001
+		self.noise_reduc_factor = 0.9
 
 		self.step_counter = 0
-		self.step_copying = 500
+		self.step_copying = 1000
 		self.step_learning = 2
+		self.step_reducing_exploration = 2500
 
 		self.actor = ActorNetwork(n_actions=n_actions, name='actor', fc1_dims=fc1, fc2_dims=fc2)
 		self.critic = CriticNetwork(name='critic', fc1_dims=fc1, fc2_dims=fc2)
@@ -34,6 +37,7 @@ class Agent:
 		self.update_network_parameters(tau=1)
 
 		self.history = []
+		self.curtailment = []
 
 	def update_network_parameters(self, tau=None):
 		if tau is None:
@@ -74,6 +78,8 @@ class Agent:
 		if explore:
 			actions += tf.random.normal(shape=[self.n_actions],
 										mean=0.0, stddev=self.noise)
+			if(self.step_counter%self.step_reducing_exploration==0 and self.step_counter>self.step_reducing_exploration):
+				self.noise = self.noise * self.noise_reduc_factor if self.noise>self.min_noise else self.min_noise
 		# note that if the env has an action > 1, we have to multiply by
 		# max action at some point
 		actions = actions * self.scale_actions
@@ -91,32 +97,28 @@ class Agent:
 				self.memory.sample_experiences(self.batch_size)
 
 			states = tf.convert_to_tensor(state, dtype=tf.float32)
-			states_ = tf.convert_to_tensor(new_state, dtype=tf.float32)
+			new_states = tf.convert_to_tensor(new_state, dtype=tf.float32)
 			rewards = tf.convert_to_tensor(reward, dtype=tf.float32)
 			actions = tf.convert_to_tensor(action, dtype=tf.float32)
 
 			with tf.GradientTape() as tape:
-				target_actions = self.target_actor(states_)
-				critic_value_ = tf.squeeze(self.target_critic(
-									states_, target_actions), 1)
+				target_actions = self.target_actor(new_states)
+				next_critic_value = tf.squeeze(self.target_critic(new_states, target_actions), 1)
+				target = rewards + self.gamma*next_critic_value*(1-done)
 				critic_value = tf.squeeze(self.critic(states, actions), 1)
-				target = rewards + self.gamma*critic_value_*(1-done)
 				critic_loss = keras.losses.MSE(target, critic_value)
 
-			critic_network_gradient = tape.gradient(critic_loss,
-													self.critic.trainable_variables)
-			self.critic.optimizer.apply_gradients(zip(
-				critic_network_gradient, self.critic.trainable_variables))
+			critic_network_gradient = tape.gradient(critic_loss,self.critic.trainable_variables)
+			self.critic.optimizer.apply_gradients(zip(critic_network_gradient, self.critic.trainable_variables))
 
 			with tf.GradientTape() as tape:
 				new_policy_actions = self.actor(states)
+				#Want to maximize this term so the '-' sign
 				actor_loss = -self.critic(states, new_policy_actions)
 				actor_loss = tf.math.reduce_mean(actor_loss)
 
-			actor_network_gradient = tape.gradient(actor_loss,
-												self.actor.trainable_variables)
-			self.actor.optimizer.apply_gradients(zip(
-				actor_network_gradient, self.actor.trainable_variables))
+			actor_network_gradient = tape.gradient(actor_loss,self.actor.trainable_variables)
+			self.actor.optimizer.apply_gradients(zip(actor_network_gradient, self.actor.trainable_variables))
 
 			if(self.step_counter%self.step_copying==0):
 				self.update_network_parameters()
