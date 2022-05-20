@@ -2,6 +2,8 @@
 \label{chapter4}
 %phd report
 %https://roadnighttaylor.co.uk/news/what-is-active-network-management/
+%Curtailment + curtailment % + solution/compensations
+%https://windeurope.org/wp-content/uploads/files/policy/position-papers/WindEurope-Priority-Dispatch-and-Curtailment.pdf
 The principle of active network management \gls{ANM} is to address congestion and voltage issues via short-term decision making policies \cite{ANMQuentin}. \\
 \gls{ANM} creates a smarter network infrastructure providing automated control of various components in the network and provides the information needed to ensure that every device performs in an optimal manner. This automated control allows grid companies to avoid the traditional approach of reinforcing the network with expensive upgrades; so reducing the costs.
 For example, in case of energy generation from the renewable devices higher than what a particular line can handle, a grid company, to avoid congestions and possible overvoltages, has three main options:
@@ -227,7 +229,8 @@ Brief literature review for RL application on power networks (paper's link in th
     a deep reinforcement learning (DRL) based algorithm is developed and implemented for coordinating multiple SIs to ensure voltage operation limits of the grid are meet. (37 node test feeder)\\
     
     \emph{"The other objective is to minimize the PV production curtailment, which is assured by minimization of reactive power utilization." \\
-    Could you clarify the relationship between curtailment and reactive power?} \\
+    Could you clarify the relationship between curtailment and reactive power?\\
+    } \\
     
     \\\textbf{State}: voltage magnitudes of each bus, real and reactive power of PVs and loads
     \\\textbf{Action}: we consider SI (smart inverter) reactive power outputs as actions
@@ -280,10 +283,10 @@ So the question:\\
 \noindent \textbf{Reward}: 
 Since it is important it may be defined better while proceeding, but here is a possible implementation:
 \[
-r_t(s,a) = - \alpha \cdot \mathtext{total\_energy\_loss} - \beta \cdot \mathtext{network\_violations} = -
+r_t(s,a) = - \alpha \cdot \mathtext{total\_perc\_loss} - \beta \cdot \mathtext{network\_violations} = -
 \alpha \cdot \sum^{|A|}_{i=0} a_i + \beta \cdot \phi(s,a)
 \]
-\noindent where $r_t(s,a)$ is the reward at time $t$ given the state $s$ and action $a$; $\mathtext{total\_energy\_loss}$ is the energy lost in that time step (sum of all curtailed values, basically np.sum($a_t$)); $\mathtext{network\_violations}$ is a violation term to punish the agent if the network is in a critical situation (voltage above the limit, line loading above the limit, ...); $\alpha$ and $\beta$ are two scaling factors. In case of the double stream network, the classification variable can be used in the reward function as well; something like "$- \gamma \cdot |y_t - \hat{y}_t|$", with $y_t$ the prediction of the model and $\hat{y}_t$ the actual label (known from the power flow calculation) and $\gamma$ another scaling factor.\\
+\noindent where $r_t(s,a)$ is the reward at time $t$ given the state $s$ and action $a$; $\mathtext{total\_perc\_loss}$ is the percentage of energy lost in that time step (sum of all curtailed values, basically np.sum($a_t$)); $\mathtext{network\_violations}$ is a violation term to punish the agent if the network is in a critical situation (voltage above the limit, line loading above the limit, ...); $\alpha$ and $\beta$ are two scaling factors. In case of the double stream network, the classification variable can be used in the reward function as well; something like "$- \gamma \cdot |y_t - \hat{y}_t|$", with $y_t$ the prediction of the model and $\hat{y}_t$ the actual label (known from the power flow calculation) and $\gamma$ another scaling factor.\\
 
 I am not sure with this reward function the agent may converge because is not very specific and does not punish the agent correctly. Maybe it would help to have a $\hat{a}_t$ so to compare with $a_t$ but maybe this is not feasible, and it looks a lot like a supervised problem(?).\\
 So the question:\\
@@ -324,17 +327,27 @@ Probably the pandapower core library should be changed to have a custom control 
         r = &- alpha * np.sum(action) \\
             &- beta*[|1.05-np.max(vm\_pus)|+\frac{1}{2}*|0.95-np.min(vm\_pus)|]^2
     \end{align*}
-    with alpha=1, beta=500 (the difference between voltage is quite small), action is the list of res curtailment values([0,100\%]), vm\_pus is the list buses' voltage magnitude after the PF calculation. The idea to punish the agent to curtail too much the generation (np.sum(action)) and punish it if the voltage is out of the constraints.
+    with alpha=1, beta=500 (the difference between voltage is quite small), action is the list of res curtailment values([0,100\%]), vm\_pus is the list buses' voltage magnitude after the PF calculation. The idea to punish the agent to curtail too much the generation (np.sum(action)) and punish it if the voltage is out of the constraints. It did not work well. \\
+    
+    Tested another one:
+    \begin{align*}
+        r = &- alpha * np.sum(action) \\
+            &- \sum_{v \in vm\_pus} f(v)
+    \end{align*}
+    with f() a piecewise violation function. Better results.
     \item The trained model was able to reduce the number of overvoltages on the test set:\\
-    from 5.9\% (634 overvoltages over 10512 time steps) to 5.1\% (541 overvoltages). 
-    \item I did not store information about the steps (rewards, ...) so I do not know the total power loss. Another interesting step would be to understand if the agent curtail the generators even if it is not needed. 
+    from 4.0\% (836 overvoltages over 21024 time steps) to 3.9\% (823 overvoltages). 
+    \item \emph{old. I did not store information about the steps (rewards, ...) so I do not know the total power loss. Another interesting step would be to understand if the agent curtail the generators even if it is not needed.}
+    \item These are some statistics obtained:
+    Total energy production 161960 MW, total energy curtailed: 1550 MW in 21024 time steps (~7 months), ratio: 0.96\%. Average for 15mins: 0.07$\pm$0.07 MW, average for 15mins per RES device: 0.0012 MW (1.2 kW/15mins)
+    \item Better results are obtained if the RES's reactive power is controlled.
 \end{enumerate}
 
 
-\begin{figure}[H]
-\centering
-    \includegraphics[width=.45\linewidth]{images/RL/before.png}
-    \includegraphics[width=.45\linewidth]{images/RL/after.png}
-\caption{Before (left) and after (right) the agent control. }
+% \begin{figure}[H]
+% \centering
+%     \includegraphics[width=.45\linewidth]{images/RL/before.png}
+%     \includegraphics[width=.45\linewidth]{images/RL/after.png}
+% \caption{Before (left) and after (right) the agent control. }
 
- \end{figure}
+%  \end{figure}
