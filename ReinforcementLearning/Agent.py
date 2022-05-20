@@ -125,3 +125,10 @@ class Agent:
 
 	def increment_step_counter(self):
 		self.step_counter += 1
+
+	def save_agent(self, path):
+		self.actor.save_weights(path)
+		self.critic.save_weights(path)
+	def load_agent(self, path):
+		self.actor.load_weights(path)
+		self.critic.load_weights(path)
