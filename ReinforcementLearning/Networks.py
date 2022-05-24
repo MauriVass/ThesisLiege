@@ -12,12 +12,16 @@ class CriticNetwork(tf.keras.Model):
 		self.checkpoint_file = os.path.join(self.checkpoint_dir,self.model_name+'_ddpg.h5')
 
 		self.fc1 = tf.keras.layers.Dense(self.fc1_dims, activation='relu')
+		self.bn1 = tf.keras.layers.BatchNormalization()
 		self.fc2 = tf.keras.layers.Dense(self.fc2_dims, activation='relu')
+		self.bn2 = tf.keras.layers.BatchNormalization()
 		self.q = tf.keras.layers.Dense(1, activation=None)
 
 	def call(self, state, action):
 		action_value = self.fc1(tf.concat([state, action], axis=1))
+		action_value = self.bn1(action_value)
 		action_value = self.fc2(action_value)
+		action_value = self.bn2(action_value)
 
 		q = self.q(action_value)
 
@@ -35,13 +39,24 @@ class ActorNetwork(tf.keras.Model):
 		self.checkpoint_file = os.path.join(self.checkpoint_dir,self.model_name+'_ddpg.h5')
 
 		self.fc1 = tf.keras.layers.Dense(self.fc1_dims, activation='relu')
+		self.bn1 = tf.keras.layers.BatchNormalization()
 		self.fc2 = tf.keras.layers.Dense(self.fc2_dims, activation='relu')
-		self.mu = tf.keras.layers.Dense(self.n_actions, activation='sigmoid')
+		self.bn2 = tf.keras.layers.BatchNormalization()
+		self.mu = tf.keras.layers.Dense(int(self.n_actions/2), activation='sigmoid')
+		self.muq = tf.keras.layers.Dense(int(self.n_actions/2), activation='tanh')
 
 	def call(self, state):
 		prob = self.fc1(state)
+		prob = self.bn1(prob)
 		prob = self.fc2(prob)
+		prob = self.bn2(prob)
 
 		mu = self.mu(prob)
+		muq = self.muq(prob)
 
+		p_actions = mu
+		
+		q_actions = (muq / 2) #[-0.5,0.5]
+		mu = tf.concat([p_actions,q_actions],0)
+		mu = tf.reshape(mu,[state.shape[0],self.n_actions])
 		return mu

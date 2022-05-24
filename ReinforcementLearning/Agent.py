@@ -3,26 +3,28 @@ import tensorflow.keras as keras
 from tensorflow.keras.optimizers import Adam
 from Experiences import Experiences
 from Networks import ActorNetwork, CriticNetwork
+import numpy as np
 
 
 class Agent:
 	def __init__(self, input_dims, alpha=0.001, beta=0.003, gamma=0.99,
 				n_actions=2, scale_actions=1, max_size=1000000, tau=0.005,
-				fc1=400, fc2=300, batch_size=64, noise=0.01):
+				fc1=400, fc2=300, batch_size=64, noise=0.1):
 		self.gamma = gamma
 		self.tau = tau
 		self.memory = Experiences(max_size, input_dims, n_actions)
 		self.batch_size = batch_size
 		self.n_actions = n_actions
 		self.scale_actions = scale_actions
-		self.noise = noise
-		self.min_noise = 0.0001
-		self.noise_reduc_factor = 0.9
 
 		self.step_counter = 0
-		self.step_copying = 1000
+		self.step_copying = 2000
 		self.step_learning = 2
-		self.step_reducing_exploration = 2500
+		self.step_reducing_exploration = 300
+
+		self.noise = noise
+		self.min_noise = 0.0001
+		self.noise_reduc_factor = 0.991
 
 		self.actor = ActorNetwork(n_actions=n_actions, name='actor', fc1_dims=fc1, fc2_dims=fc2)
 		self.critic = CriticNetwork(name='critic', fc1_dims=fc1, fc2_dims=fc2)
@@ -38,6 +40,7 @@ class Agent:
 
 		self.history = []
 		self.curtailment = []
+		self.losses = []
 
 	def update_network_parameters(self, tau=None):
 		if tau is None:
@@ -73,6 +76,7 @@ class Agent:
 		self.target_critic.load_weights(self.target_critic.checkpoint_file)
 
 	def choose_action(self, observation, explore=False):
+		#NN expects a extra dimention for the batch so add one more with []
 		state = tf.convert_to_tensor([observation], dtype=tf.float32)
 		actions = self.actor(state)
 		if explore:
@@ -80,16 +84,23 @@ class Agent:
 										mean=0.0, stddev=self.noise)
 			if(self.step_counter%self.step_reducing_exploration==0 and self.step_counter>self.step_reducing_exploration):
 				self.noise = self.noise * self.noise_reduc_factor if self.noise>self.min_noise else self.min_noise
-		# note that if the env has an action > 1, we have to multiply by
-		# max action at some point
-		actions = actions * self.scale_actions
-		#Clip [0, actions) since curtailemnt can't be negative
-		actions = tf.clip_by_value(actions, 0, actions)
+		
+		# #Clip [0, actions) since curtailemnt can't be negative
+		actual_action_length = int(self.n_actions/2)
 
-		return actions[0]
+		p_actions = actions[0][:actual_action_length]
+		p_actions = tf.clip_by_value(p_actions, clip_value_min=0, clip_value_max=1) #[0,1]
+		
+		q_actions = (actions[0][actual_action_length:])#* 0.4
+
+		actions = tf.concat([p_actions, q_actions],0)
+		#Reshape to get a single array
+		actions = tf.reshape(actions,[1,self.n_actions])
+
+		return actions[0] # the [0] is for the previously add extra batch dimention
 
 	def learn(self):
-		if self.memory.mem_counter < self.batch_size:
+		if (self.memory.mem_counter < self.batch_size):
 			return
 
 		if(self.step_counter%self.step_learning==0):
@@ -123,12 +134,7 @@ class Agent:
 			if(self.step_counter%self.step_copying==0):
 				self.update_network_parameters()
 
+			self.losses.append([critic_loss.numpy(),actor_loss.numpy()])
+
 	def increment_step_counter(self):
 		self.step_counter += 1
-
-	def save_agent(self, path):
-		self.actor.save_weights(path)
-		self.critic.save_weights(path)
-	def load_agent(self, path):
-		self.actor.load_weights(path)
-		self.critic.load_weights(path)
