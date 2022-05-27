@@ -4,8 +4,9 @@
 
 % The power networks are not exceptions.
 
-Nowadays, people take electricity for granted and that flipping the switch will turn the light on instantly and effortless. But the electricity, used for everyday purposes, performs a long journey before arriving to houses or where it is consumed. The electricity circulate in power networks. These power networks include of many elements and devices that are needed to generate, transport and assure that there are no problems in the network, so that it works well. \\
-However, they are far from perfect, and some issue may arise at any moment, for example voltage problems. Voltage problems arise when the voltage through a line or a device is more or less than what it is expected, and these problems should be handled correctly. There are two voltage problems that can raise on a network: under and over voltage problems.\\
+Nowadays, people take electricity for granted and that flipping the switch will turn the light on instantly and effortless. But the electricity, used for everyday purposes, performs a long journey before arriving to houses or where it is consumed. The electricity circulate in power networks. These power networks include many elements and devices that are needed to generate, transport and assure that there are no problems in the network, assuring that they work well. \\
+However, they are far from perfect, and some issue may arise at any moment, for example voltage problems. Voltage problems arise when the voltage through a line or a device is more or less than what it is expected. Should that be the case, these problems should be handled correctly. There are two voltage problems that can raise on a network: under and over voltage problems.\\
+
 Generally, electronic devices have defined voltage limits they can work in safety conditions. The voltage magnitude in the different parts of a network is not always constant during time, but it fluctuates. These fluctuations, both positive and negative, can be large: when negative, the voltage can drop below the device's minimum allowed voltage limit, in this case there would be an under voltage problem; or when positive, the voltage can increase above its maximum allowed limit, in this case there would be an over voltage problem. \\
 
 The voltage control problem has been studied for years, but it only comes under the spotlight in the last years for the increasing number of distributed resources introduced in the networks. \\
@@ -237,24 +238,24 @@ In general, the calculation can be extended to any generic $k$ elements, but the
 
 % \section{Power system voltage managment}
 
-\section{Pandapower}
-\label{ch:pandapower}
-This thesis project will be developed with the help of Pandapower. \\
-Pandapower is a Python based power system analysis tool aimed at automation of static and quasi-static analysis and optimization of power systems \cite{pandapower}. \\
-Pandapower is a powerful tool that allows to easily create a model for any power network using customizable predefined data structures, it can solve the \gls{PF} problems, perform the state estimates, topological graph searches and diagnose the system for possible errors.
+% \section{Pandapower}
+% \label{ch:pandapower}
+% This thesis project will be developed with the help of Pandapower. \\
+% Pandapower is a Python based power system analysis tool aimed at automation of static and quasi-static analysis and optimization of power systems \cite{pandapower}. \\
+% Pandapower is a powerful tool that allows to easily create a model for any power network using customizable predefined data structures, it can solve the \gls{PF} problems, perform the state estimates, topological graph searches and diagnose the system for possible errors.
 
-\subsection{Data structure}
-Pandapower is based on a tabular data structure, where every element is represented by a table that holds all parameters for a specific component. It is possible to add more information at the data structure, indeed, after the calculation of the power flow, a result table, which contains the element specific results of the different analysis methods, is added to the structure. \\
-The tabular data structure is based on the Python library pandas. It allows storing variables of any data type, so that electrical parameters can be stored together with status variables and meta-data, such as names or descriptions. The tables can be easily expanded and customized by adding new columns without influencing the Pandapower functionality. All inherent pandas methods can be used to efficiently read, write and analyse the network and results data. \\
+% \subsection{Data structure}
+% Pandapower is based on a tabular data structure, where every element is represented by a table that holds all parameters for a specific component. It is possible to add more information at the data structure, indeed, after the calculation of the power flow, a result table, which contains the element specific results of the different analysis methods, is added to the structure. \\
+% The tabular data structure is based on the Python library pandas. It allows storing variables of any data type, so that electrical parameters can be stored together with status variables and meta-data, such as names or descriptions. The tables can be easily expanded and customized by adding new columns without influencing the Pandapower functionality. All inherent pandas methods can be used to efficiently read, write and analyse the network and results data. \\
 
-A Pandapower network is a Python dictionary that holds all information about the network. Most importantly, it includes element and a result tables for each element type, such as line, transformer, switch, loads. The element table holds all input parameters that are specified by the user, while the result table is used to store the results of the power flow calculation. Input and output parameters are identified by the same index in both tables \cite{pandapower}.
+% A Pandapower network is a Python dictionary that holds all information about the network. Most importantly, it includes element and a result tables for each element type, such as line, transformer, switch, loads. The element table holds all input parameters that are specified by the user, while the result table is used to store the results of the power flow calculation. Input and output parameters are identified by the same index in both tables \cite{pandapower}.
 
-\begin{figure}[H]
-\centering
-    \includegraphics[width=.6\linewidth]{images/Background/Pandapower/Pandapower_net.pdf}
-\caption[Pandapower data frame]{Pandas data frame representation of the Pandapower network}
-% \label{fig:gym_anm_net}
-\end{figure}
+% \begin{figure}[H]
+% \centering
+%     \includegraphics[width=.6\linewidth]{images/Background/Pandapower/Pandapower_net.pdf}
+% \caption[Pandapower data frame]{Pandas data frame representation of the Pandapower network}
+% % \label{fig:gym_anm_net}
+% \end{figure}
 
 
 % \subsection{Network models}
@@ -265,24 +266,24 @@ A Pandapower network is a Python dictionary that holds all information about the
 % A commonly used approach is the bus-branch model (\gls{BBM}), which defines the network as a collection of buses which are connected by generic branches. Branches are modelled with a predefined equivalent circuit and are used to model multiple elements connected to that branch (multi-pole), like lines or transformers. Buses are attributed with power injections to model single-pole elements like loads, generators or capacitor banks. Since the \gls{BBM} is an accurate mathematical representation of the network, electric equations for power systems analysis can be directly derived from it, but the need to calculate the impedances for each branch and to sum power injections at each bus manually can be cumbersome and error-prone, especially for complex elements. \\
 % Instead of a \gls{BBM}, Pandapower uses an element-based model (\gls{EBM}) to model electric grids. An element is either connected to one or multiple buses and is defined with characteristic parameters. This allows defining the network parameters, such as length and relative impedance for lines, or short circuit voltage and rated apparent power for transformers. While \gls{BBM} allows only the definition of a summed power injection at each bus, single-pole elements (such as load or generation elements) can be connected to buses independently. This also allows connecting multiple elements at one bus. The element models are then processed internally with the appropriate equivalent \gls{BBM} circuits to derive a mathematical description of the grid \cite{pandapower}. This decoupling the element model from the electric model allows specifying different equivalent circuits for different analysis functionalities. For example, an external grid element can be modelled as a slack node in the power flow calculation, but as a voltage source with internal impedance in the short circuit calculation.
 
-\subsection{Power flow solver}
-As said, power flow is one of the most important electric analysis function for power system planning. It allows calculating the current flows and voltages in the network. \\
-The Pandapower power flow solver is based on the Newton-Raphson method. The implementation is based on PYPOWER Python library. To solve the \gls{PF}, the bus constraints include maximum and minimum voltage magnitude, active and reactive power limits can be defined for PV and slack-elements like external grids and generators, but also for PQ-elements, such as loads and static generators. \\
-% After defining all the network elements, to run the power flow solver it is just need to execute the command: 
+% \subsection{Power flow solver}
+% As said, power flow is one of the most important electric analysis function for power system planning. It allows calculating the current flows and voltages in the network. \\
+% The Pandapower power flow solver is based on the Newton-Raphson method. The implementation is based on PYPOWER Python library. To solve the \gls{PF}, the bus constraints include maximum and minimum voltage magnitude, active and reactive power limits can be defined for PV and slack-elements like external grids and generators, but also for PQ-elements, such as loads and static generators. \\
+% % After defining all the network elements, to run the power flow solver it is just need to execute the command: 
 
-% \begin{algorithm}[h]
-% \state pandapower.runpp(net, ...)
-% \end{algorithm}
+% % \begin{algorithm}[h]
+% % \state pandapower.runpp(net, ...)
+% % \end{algorithm}
 
-After running the power flow calculation, new tables are added to the network data frame.
-\begin{figure}[H]
-\centering
-    \includegraphics[width=.6\linewidth]{images/Background/Pandapower/Pandapower_resnet_big.pdf}
-\caption[Pandapower data frame (after the power flow calculation)]{Pandas data frame representation of the Pandapower network after the power flow calculation}
-% \label{fig:gym_anm_net}
-\end{figure}
+% After running the power flow calculation, new tables are added to the network data frame.
+% \begin{figure}[H]
+% \centering
+%     \includegraphics[width=.6\linewidth]{images/Background/Pandapower/Pandapower_resnet_big.pdf}
+% \caption[Pandapower data frame (after the power flow calculation)]{Pandas data frame representation of the Pandapower network after the power flow calculation}
+% % \label{fig:gym_anm_net}
+% \end{figure}
 
-The power flow calculation on a Pandapower network can fail to converge for a vast variety of reasons, which often makes debugging difficult, annoying and time-consuming. To help with that, the diagnostic function automatically checks Pandapower networks for the most common issues leading to errors. It provides logging output and diagnoses with a controllable level of detail.
+% The power flow calculation on a Pandapower network can fail to converge for a vast variety of reasons, which often makes debugging difficult, annoying and time-consuming. To help with that, the diagnostic function automatically checks Pandapower networks for the most common issues leading to errors. It provides logging output and diagnoses with a controllable level of detail.
 
 %%% SAD :'( %%%
 % \noindent this function takes as input the Pandapower network data structure and some other optional values (for example the algorithm solver, max number of iterations, tolerance and so on). \\
@@ -307,37 +308,37 @@ The power flow calculation on a Pandapower network can fail to converge for a va
 
 % \noindent It is possible to customize the cost function and choosing between a piece-wise or polynomial cost function. Detailed information about the optimization problem, cost function and network constrains are available in the Pandapower documentation \cite{pandapower2}. \\
 
-\subsection{Time series}
-Pandapower allow running time series analysis for a given network. There are two main requirements for time series calculations:
-\begin{itemize}
-    \item a Pandapower network
-    \item some time series (in a panda's data frame for example)
-\end{itemize}
+% \subsection{Time series}
+% Pandapower allow running time series analysis for a given network. There are two main requirements for time series calculations:
+% \begin{itemize}
+%     \item a Pandapower network
+%     \item some time series (in a panda's data frame for example)
+% \end{itemize}
 
-To execute the time series calculation, the loads, generators and other elements' active and reactive power time series have to be passed to a controller that will be in charge to change the elements' values according to the time series. \\
+% To execute the time series calculation, the loads, generators and other elements' active and reactive power time series have to be passed to a controller that will be in charge to change the elements' values according to the time series. \\
 
-The time series calculation can be run with the command: 
-\begin{algorithm}[h]
-\state pandapower.timeseries.run\_time\_series.run\_timeseries(net, ...)
-\end{algorithm}
+% The time series calculation can be run with the command: 
+% \begin{algorithm}[h]
+% \state pandapower.timeseries.run\_time\_series.run\_timeseries(net, ...)
+% \end{algorithm}
 
-\noindent this command will start a loop that iterates over every \textbf{time\_step}. For each step, a control loop is started for each controller by \textbf{run\_control}. The controller updates the elements' values at each step with the values given in the time series.
+% \noindent this command will start a loop that iterates over every \textbf{time\_step}. For each step, a control loop is started for each controller by \textbf{run\_control}. The controller updates the elements' values at each step with the values given in the time series.
 
-\begin{figure}[H]
-\centering
-    \includegraphics[width=.4\linewidth]{images/Background/Pandapower/run_timeseries_loop.pdf}
-\caption[Pandapower time series calculation]{Pandapower time series calculation loop \cite{pandapowerts}}
-\end{figure}
+% \begin{figure}[H]
+% \centering
+%     \includegraphics[width=.4\linewidth]{images/Background/Pandapower/run_timeseries_loop.pdf}
+% \caption[Pandapower time series calculation]{Pandapower time series calculation loop \cite{pandapowerts}}
+% \end{figure}
 
-After each step, the elements' values are stored in an output writer object and this allows, after the full calculation is finished, to easily save the values on disk.
+% After each step, the elements' values are stored in an output writer object and this allows, after the full calculation is finished, to easily save the values on disk.
 
-\subsection{Other functionality}
-Pandapower has some other features:
-\begin{itemize}
-    \item Predefined Networks. In addition to creating custom networks through the application programming interface (\gls{API}), 66 predefined, published test and benchmark networks can be directly accessed through Pandapower. One of these networks, MV Oberrhein, is the one used in this thesis.
-    \item Plotting features. Pandapower comes with extensive plotting features using the Matplotlib library. All Pandapower elements can be translated into different Matplotlib collections that can be customized with respect to shape, size and colour to allow highlighting and create individual network plots. It is also possible to use colour maps to codify information, like the loading of lines or the voltage at buses.
-    \item Converter. Pandapower includes converters in order to export a Pandapower grid as a MATPOWER or PYPOWER casefile or the other way.
-\end{itemize}
+% \subsection{Other functionality}
+% Pandapower has some other features:
+% \begin{itemize}
+%     \item Predefined Networks. In addition to creating custom networks through the application programming interface (\gls{API}), 66 predefined, published test and benchmark networks can be directly accessed through Pandapower. One of these networks, MV Oberrhein, is the one used in this thesis.
+%     \item Plotting features. Pandapower comes with extensive plotting features using the Matplotlib library. All Pandapower elements can be translated into different Matplotlib collections that can be customized with respect to shape, size and colour to allow highlighting and create individual network plots. It is also possible to use colour maps to codify information, like the loading of lines or the voltage at buses.
+%     \item Converter. Pandapower includes converters in order to export a Pandapower grid as a MATPOWER or PYPOWER casefile or the other way.
+% \end{itemize}
 
 
 

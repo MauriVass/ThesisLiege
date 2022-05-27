@@ -296,14 +296,28 @@ x = [sum\_loads\_p, sum\_loads\_q, sum\_sgen\_p] at every time step. Similar as 
 \centering
 \begin{tabular}{|ll|l|l|l|}
 \hline
-\multicolumn{2}{|l|}{x = |V|, n=4} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\ \hline
-\multicolumn{1}{|l|}{\textbf{MLP}} & h=16 (4h) & 0.745 & 0.730 & 0.737 \\ \hline
-\multicolumn{1}{|l|}{\textbf{CNN}} & h=16 (4h) & 0.804 & 0.720 & 0.756 \\ \hline
-\multicolumn{1}{|l|}{\textbf{RNN}} & h=16 (4h) & 0.796 & 0.765 & 0.780 \\ \hline
-\multicolumn{1}{|l|}{\textbf{RF}}  & h=16 (4h) & 0.835 & 0.665 & 0.740 \\ \hline
+\multicolumn{2}{|l|}{n=1} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\ \hline
+\multicolumn{1}{|l|}{\textbf{MLP}} & h=16 (4h) & 0.675 & 0.704 & 0.689 \\ \hline
+\multicolumn{1}{|l|}{\textbf{CNN}} & h=16 (4h) & 0.627 & 0.742 & 0.6880 \\ \hline
+\multicolumn{1}{|l|}{\textbf{RNN}} & h=16 (4h) & 0.652 & 0.767 & 0.705 \\ \hline
+\multicolumn{1}{|l|}{\textbf{RF}}  & h=16 (4h) & 0.857 & 0.800 & 0.826 \\ \hline
 \end{tabular}
 \caption{}
-\label{tab:my-table}
+\label{tab:5.4}
+\end{table}
+
+x = [sgen\_p, ext\_grid\_p, ext\_grid\_q] at every time step
+\begin{table}[H]
+\centering
+\begin{tabular}{|ll|l|l|l|}
+\hline
+\multicolumn{2}{|l|}{n=1} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\ \hline
+\multicolumn{1}{|l|}{\textbf{MLP}} & h=16 (4h) & 0.647 & 0.610 & 0.628 \\ \hline
+\multicolumn{1}{|l|}{\textbf{CNN}} & h=16 (4h) & 0.617 & 0.748 & 0.676 \\ \hline
+\multicolumn{1}{|l|}{\textbf{RNN}} & h=16 (4h) & 0.719 & 0.692 & 0.705 \\ \hline
+\end{tabular}
+\caption{}
+\label{tab:5.5}
 \end{table}
 
 

@@ -343,6 +343,89 @@ Probably the pandapower core library should be changed to have a custom control 
     \item Better results are obtained if the RES's reactive power is controlled.
 \end{enumerate}
 
+\noindent \textbf{Updates \#2: \label{rlupadate}}\\
+I tried to run some experiments with different combinations of reward functions and hyperparameters. \\
+\textbf{State:} active and reactive power of loads and active power of generators at time $t$ (61+61+60).\\
+
+\textbf{Action:} the agent can control active and reactive power of the generators, in particular:
+\[
+a = [a_p, a_q]
+\]
+with $a_p$ an array with the active power scaling factors ($a_{p,i} \in [0,1]$) and $a_q$ an array with reactive powers values ($a_{p,i} \in [-0.5,0.5]$).\\
+
+\textbf{Reward function:}\\
+The reward function is a composition of 4 values:
+\begin{enumerate}
+    \item reward\_p = np.sum($a_p$): the agent is punished to choose too high values of active power curtailment. goal of the agent minimize this term
+    \item reward\_p = np.sum(np.abs($a_q$)): the agent is punished to change the values of reactive power too much. (the np.abs is needed, since $a_q$ may contain both positive and negative values)
+    \newpage
+    \item voltage\_violation: the agent is punished if the voltage magnitude of the buses is away from 1pu. The punishment value is chosen with the following punishment shape.
+    \begin{figure}[h]
+    \centering
+        \includegraphics[width=.4\linewidth]{images/RL/volatge_violation_function.png}
+    \end{figure}
+    The idea is to punish the agent by a low value when the voltage bus is in the range [0.95,1.05] and punish more when the voltage bus is more far away from 1pu.
+    \item reward\_crit\_solved: a reward if the critical situation is solved, and punish otherwise. In particular:\\
+    
+    \emph{
+    $rew\_crit\_solv = gamma * (vm\_pu\_labels_t - 4 * is\_critical\_situation + 1)$\\
+    #Cases:\\
+    # 0 - 0 - no critical situation before and after the agent's action (OK, +1gamma reward)\\
+    # 0 - 1 - no critical situation before but introduced after the agent's action (WORST POSSIBLE CASE, -3*gamma punishment)\\
+    # 1 - 0 - critical situation before and solved after the agent's action (BEST POSSIBLE CASE, +2gamma reward)\\
+    # 1 - 1 - critical situation before and after the agent's action (NOT REALLY OK, -2gamma punishment)\\
+    }
+    \item the total reward is given by the algebraic sum of all the previous terms:
+    \[
+    rew = alpha\_p * rew\_p + alpha\_q * rew\_q +  beta * rew\_volt\_viol + gamma * rew\_crit\_solv
+    \]
+    with alpha\_p=1, alpha\_q=0.5, beta=20, gamma=5. These values are chosen such that all the terms have a similar mean value. \emph{maybe it is not right since some term should have a higher weight?}
+\end{enumerate}\\
+
+\textbf{Results:}\\
+I trained the agent for 8 episodes on 30\% of the time series and tested on the other 70\%. It looks like is capable of learning: it decides that curtail the active power is bad so $a_p$ is usually an array of 0s and it is able to change the reactive power to avoid critical situations.
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.6\linewidth]{images/RL/Reward plot.png}
+\end{figure}
+It is possible to see that the reward is increasing over time, but it almost reaches its peak after few steps (around 2000 steps!!).\\
+These the results:
+\emph{Total active power generated 198176 MW, total curtailment: 0.4 MW in 24528 time steps(~8 months), ratio: 0.00\%\\
+
+Total reactive power changed 0.73 MVar (actually this is wrong since I forgot the abs() when summing. I will run again the learning process)}
+\newpage
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.75\linewidth]{images/RL/before 0.3.png}
+    \caption{Before}
+\end{figure}
+\begin{figure}[H]
+\centering
+    \includegraphics[width=.75\linewidth]{images/RL/after 0.3.png}
+    \caption{After the agent control}
+\end{figure}
+
+
+\emph{
+\textbf{Before}\\
+Number of over voltage situations: 823, over 24528 time steps, ratio: 3.4\\
+Number of under voltage situations: 33, over 24528 time steps, ratio: 0.1\\}
+
+\emph{
+\textbf{After}\\
+Number of over voltage situations: 538, over 24528 time steps, ratio: 2.2\\
+Number of under voltage situations: 50, over 24528 time steps, ratio: 0.2}\\
+
+A possible problem is that the outputs of the NN look like it is saturated, so the output are the boundaries of the activation function (sigmoid for $a_p$ and tanh for $a_q$). Even if the agent seems working, maybe it is just a case(?).\\
+
+Few other elements:\\
+\begin{itemize}
+\item 3 hidden layers with 128, 64, 64 neurons, with Leaky ReLU (alpha=0.1) for activation function 
+\item learning rate for the actor network of 0.003 and for the critic 0.005
+\item tau value (coping NN weight) 0.01
+\item batch size of 32
+\end{itemize}
+
 
 % \begin{figure}[H]
 % \centering
