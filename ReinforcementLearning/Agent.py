@@ -9,21 +9,22 @@ import numpy as np
 class Agent:
 	def __init__(self, input_dims, alpha=0.001, beta=0.003, gamma=0.99,
 				n_actions=2, scale_actions=1, max_size=1000000, tau=0.005,
-				fc1=400, fc2=300, batch_size=64, noise=0.1):
+				fc1=400, fc2=300, batch_size=32, noise=0.2, tensorboard_writer=None):
 		self.gamma = gamma
 		self.tau = tau
 		self.memory = Experiences(max_size, input_dims, n_actions)
 		self.batch_size = batch_size
 		self.n_actions = n_actions
 		self.scale_actions = scale_actions
+		self.tensorboard_writer = tensorboard_writer
 
 		self.step_counter = 0
 		self.step_copying = 2000
 		self.step_learning = 2
-		self.step_reducing_exploration = 300
+		self.step_reducing_exploration = 1000
 
 		self.noise = noise
-		self.min_noise = 0.0001
+		self.min_noise = 0.0002
 		self.noise_reduc_factor = 0.991
 
 		self.actor = ActorNetwork(n_actions=n_actions, name='actor', fc1_dims=fc1, fc2_dims=fc2)
@@ -41,6 +42,7 @@ class Agent:
 		self.history = []
 		self.curtailment = []
 		self.losses = []
+		self.gradients = []
 
 	def update_network_parameters(self, tau=None):
 		if tau is None:
@@ -85,13 +87,13 @@ class Agent:
 			if(self.step_counter%self.step_reducing_exploration==0 and self.step_counter>self.step_reducing_exploration):
 				self.noise = self.noise * self.noise_reduc_factor if self.noise>self.min_noise else self.min_noise
 		
-		# #Clip [0, actions) since curtailemnt can't be negative
+		#Clip [0, actions) since curtailemnt can't be negative
 		actual_action_length = int(self.n_actions/2)
 
 		p_actions = actions[0][:actual_action_length]
 		p_actions = tf.clip_by_value(p_actions, clip_value_min=0, clip_value_max=1) #[0,1]
 		
-		q_actions = (actions[0][actual_action_length:])#* 0.4
+		q_actions = (actions[0][actual_action_length:])
 
 		actions = tf.concat([p_actions, q_actions],0)
 		#Reshape to get a single array
@@ -135,6 +137,16 @@ class Agent:
 				self.update_network_parameters()
 
 			self.losses.append([critic_loss.numpy(),actor_loss.numpy()])
+			# self.gradients.append([critic_network_gradient.numpy(),actor_network_gradient.numpy()])
+
+			if(self.step_counter%100==0):
+				with self.tensorboard_writer.as_default():
+					tf.summary.scalar('critic_loss', critic_loss.numpy(), step=self.step_counter)
+					tf.summary.scalar('actor_loss', actor_loss.numpy(), step=self.step_counter)
+					for layer in self.actor.trainable_weights:
+						tf.summary.histogram('actor_'+layer.name, layer.numpy(), step=self.step_counter)
+					for layer in self.critic.trainable_weights:
+						tf.summary.histogram('critic_'+layer.name, layer.numpy(), step=self.step_counter)
 
 	def increment_step_counter(self):
 		self.step_counter += 1
