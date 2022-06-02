@@ -15,7 +15,8 @@ class Experiences:
 
 		self.state_memory[index] = state
 		self.action_memory[index] = action
-		self.reward_memory[index] = reward
+		# self.reward_memory[index] = reward
+		self.reward_memory[index] = np.clip(reward, -70 ,50)
 		self.next_state_memory[index] = next_state
 		self.terminal_memory[index] = done
 
