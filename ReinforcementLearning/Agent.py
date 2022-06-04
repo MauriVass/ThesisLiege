@@ -47,6 +47,8 @@ class Agent:
 		self.q_values = []
 		self.noises = []
 		self.noises.append(self.noise)
+		self.p_for_gen = 0
+		self.q_for_gen = 0
 
 		self.l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
 
@@ -110,23 +112,27 @@ class Agent:
 				self.noise = self.noise * self.noise_reduc_factor if self.noise>self.min_noise else self.min_noise
 				self.noises.append(self.noise)
 		
-		actual_action_length = int(self.n_actions/2)
+		# actual_action_length = int(self.n_actions/2)
 
-		p_actions = actions[0][:actual_action_length]
-		p_actions = tf.clip_by_value(p_actions, clip_value_min=0, clip_value_max=1) #[0,1]
+		# p_actions = actions[0][:actual_action_length]
+		# p_actions = tf.clip_by_value(p_actions, clip_value_min=0, clip_value_max=1) #[0,1]
 		
-		q_actions = (actions[0][actual_action_length:])
+		# q_actions = (actions[0][actual_action_length:])
 
-		actions = tf.concat([p_actions, q_actions],0)
-		#Reshape to get a single array
-		actions = tf.reshape(actions,[1,self.n_actions])
+		# actions = tf.concat([p_actions, q_actions],0)
+		# #Reshape to get a single array
+		# actions = tf.reshape(actions,[1,self.n_actions])
+
+		actions = tf.clip_by_value(actions, clip_value_min=0, clip_value_max=1) #[0,1]
+
 
 		if(True):
 			q_val = self.critic(state,actions)
-			action_tar = self.target_actor(state)
-			q_val_tar = self.target_critic(state,actions)
-			q_val_tar_1 = self.target_critic(state,action_tar)
-			self.q_values.append([q_val,q_val_tar,q_val_tar_1])
+			# action_tar = self.target_actor(state)
+			# q_val_tar = self.target_critic(state,actions)
+			# q_val_tar_1 = self.target_critic(state,action_tar)
+			# self.q_values.append([q_val,q_val_tar,q_val_tar_1])
+			self.q_values.append([q_val])
 
 
 		return actions[0] # the [0] is for the previously added extra batch dimention
