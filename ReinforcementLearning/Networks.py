@@ -52,9 +52,9 @@ class ActorNetwork(tf.keras.Model):
 		# self.bn2 = tf.keras.layers.BatchNormalization()
 		self.fc3 = tf.keras.layers.Dense(self.fc2_dims, activation=tf.keras.layers.LeakyReLU(alpha=self.alpha), kernel_initializer=tf.random_normal_initializer(mean=0.0, stddev=self.std_weights))
 		# self.bn3 = tf.keras.layers.BatchNormalization()
-		self.mu = tf.keras.layers.Dense(int(self.n_actions), activation='sigmoid')
-		# self.mu = tf.keras.layers.Dense(int(self.n_actions/2), activation='sigmoid')
-		# self.muq = tf.keras.layers.Dense(int(self.n_actions/2), activation='tanh')
+		# self.mu = tf.keras.layers.Dense(int(self.n_actions), activation='sigmoid')
+		self.mu = tf.keras.layers.Dense(int(self.n_actions/2), activation='sigmoid')
+		self.muq = tf.keras.layers.Dense(int(self.n_actions/2), activation='tanh')
 		# self.muq = tf.keras.layers.Dense(int(self.n_actions), activation='tanh')
 
 	def call(self, state):
@@ -65,12 +65,16 @@ class ActorNetwork(tf.keras.Model):
 		prob = self.fc3(prob)
 		# prob = self.bn3(prob)
 
+		#2 actions
 		mu = self.mu(prob)
-		# muq = self.muq(prob)
-
-		# p_actions = mu
+		mu_q = self.muq(prob)
+		p_actions = mu
+		q_actions = mu_q
+		
+		q_actions = q_actions / 2
+		mu = tf.concat([p_actions,q_actions],1)
+		# mu = tf.reshape(mu,[state.shape[0],self.n_actions])
 		
 		# q_actions = (muq * 0.2) #[-0.5,0.5]
-		# mu = tf.concat([p_actions,q_actions],0)
 		# mu = tf.reshape(mu,[state.shape[0],self.n_actions])
 		return mu

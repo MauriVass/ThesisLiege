@@ -9,7 +9,7 @@ import numpy as np
 class Agent:
 	def __init__(self, input_dims, alpha=0.001, beta=0.003, gamma=0.99,
 				n_actions=2, scale_actions=1, max_size=1000000, tau=0.005,
-				fc1=400, fc2=300, batch_size=32, noise=0.09, tensorboard_writer=None):
+				fc1=400, fc2=300, batch_size=32, noise=0.1, tensorboard_writer=None):
 		self.gamma = gamma
 		self.tau = tau
 		self.memory = Experiences(max_size, input_dims, n_actions)
@@ -19,14 +19,14 @@ class Agent:
 		self.tensorboard_writer = tensorboard_writer
 
 		self.step_counter = 0
-		self.step_copying = 2000
+		self.step_copying = 3000
 		self.step_learning = 3
-		self.step_reducing_exploration = 200
+		self.step_reducing_exploration = 100
 		self.step_write_tensorboard = 500
 
 		self.noise = noise
-		self.min_noise = noise / 100.0
-		self.noise_reduc_factor = 0.989
+		self.min_noise = noise / 1000.0
+		self.noise_reduc_factor = 0.995
 
 		self.actor = ActorNetwork(n_actions=n_actions, name='actor', fc1_dims=fc1, fc2_dims=fc2)
 		self.critic = CriticNetwork(name='critic', fc1_dims=fc1, fc2_dims=fc2)
@@ -41,7 +41,9 @@ class Agent:
 		self.update_network_parameters(tau=1)
 
 		self.history = []
+		self.history_noscale = []
 		self.history_test = []
+		self.history_actions = []
 		self.curtailment = []
 		self.losses = []
 		self.q_values = []
@@ -100,9 +102,9 @@ class Agent:
 		self.target_critic.load_weights(self.target_critic.checkpoint_file)
 
 	def choose_action(self, observation, explore=False):
-		#NN expects a extra dimention for the batch so add one more with []
 		if(self.normalize):
 			observation = self.normalization(observation)
+		#NN expects a extra dimention for the batch so add one more with []
 		state = tf.convert_to_tensor([observation], dtype=tf.float32)
 		actions = self.actor(state)
 		if explore:
@@ -112,18 +114,20 @@ class Agent:
 				self.noise = self.noise * self.noise_reduc_factor if self.noise>self.min_noise else self.min_noise
 				self.noises.append(self.noise)
 		
-		# actual_action_length = int(self.n_actions/2)
+		#2 actions
+		actual_action_length = int(self.n_actions/2)
 
-		# p_actions = actions[0][:actual_action_length]
-		# p_actions = tf.clip_by_value(p_actions, clip_value_min=0, clip_value_max=1) #[0,1]
+		p_actions = actions[:,:actual_action_length]
+		p_actions = tf.clip_by_value(p_actions, clip_value_min=0, clip_value_max=1) #[0,1]
 		
-		# q_actions = (actions[0][actual_action_length:])
+		q_actions = (actions[:,actual_action_length:])
 
-		# actions = tf.concat([p_actions, q_actions],0)
-		# #Reshape to get a single array
+		actions = tf.concat([p_actions, q_actions],1)
+		#Reshape to get a single array
 		# actions = tf.reshape(actions,[1,self.n_actions])
 
-		actions = tf.clip_by_value(actions, clip_value_min=0, clip_value_max=1) #[0,1]
+		#1 action
+		# actions = tf.clip_by_value(actions, clip_value_min=0, clip_value_max=1) #[0,1]
 
 
 		if(True):
@@ -146,11 +150,7 @@ class Agent:
 				self.memory.sample_experiences(self.batch_size)
 
 			states = tf.convert_to_tensor(state, dtype=tf.float32)
-			# if(self.normalize):
-			# 	states = self.normalization(states)
 			new_states = tf.convert_to_tensor(new_state, dtype=tf.float32)
-			# if(self.normalize):
-			# 	new_states = self.normalization(new_states)
 			rewards = tf.convert_to_tensor(reward, dtype=tf.float32)
 			actions = tf.convert_to_tensor(action, dtype=tf.float32)
 
