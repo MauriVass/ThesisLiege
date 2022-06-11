@@ -10,6 +10,8 @@ class Agent:
 	def __init__(self, input_dims, alpha=0.001, beta=0.003, gamma=0.99,
 				n_actions=2, scale_actions=1, max_size=1000000, tau=0.005,
 				fc1=400, fc2=300, batch_size=32, noise=0.1, tensorboard_writer=None):
+		self.alpha = alpha
+		self.beta = beta
 		self.gamma = gamma
 		self.tau = tau
 		self.memory = Experiences(max_size, input_dims, n_actions)
@@ -22,11 +24,16 @@ class Agent:
 		self.step_copying = 3000
 		self.step_learning = 3
 		self.step_reducing_exploration = 100
+		self.reduce_lr = False
+		self.step_reducing_lr = 2000 #learning rate
 		self.step_write_tensorboard = 500
 
 		self.noise = noise
 		self.min_noise = noise / 1000.0
 		self.noise_reduc_factor = 0.995
+		self.min_alpha = alpha / 1000.0
+		self.min_beta = beta / 1000.0
+		self.lr_reduc_factor = 0.99
 
 		self.actor = ActorNetwork(n_actions=n_actions, name='actor', fc1_dims=fc1, fc2_dims=fc2)
 		self.critic = CriticNetwork(name='critic', fc1_dims=fc1, fc2_dims=fc2)
@@ -181,6 +188,16 @@ class Agent:
 				self.update_network_parameters()
 
 			self.losses.append([critic_loss.numpy(),actor_loss.numpy()])
+
+			if(self.reduce_lr and self.step_counter%self.step_reducing_lr==0 and self.step_counter>self.step_reducing_lr):
+				self.alpha = self.alpha * self.lr_reduc_factor if self.alpha>self.min_alpha else self.min_alpha
+				self.beta = self.beta * self.lr_reduc_factor if self.beta>self.min_beta else self.min_beta
+
+				self.actor.optimizer.learning_rate.assign(self.alpha)
+				self.target_actor.optimizer.learning_rate.assign(self.alpha)
+				self.critic.optimizer.learning_rate.assign(self.beta)
+				self.target_critic.optimizer.learning_rate.assign(self.beta)
+
 
 			if(self.tensorboard_writer is not None and (self.step_counter%self.step_write_tensorboard==0 or self.step_counter==1)):
 				with self.tensorboard_writer.as_default():
