@@ -71,7 +71,7 @@ class ActorNetwork(tf.keras.Model):
 		p_actions = mu
 		q_actions = mu_q
 		
-		q_actions = q_actions * 0.3
+		q_actions = q_actions * 0.25
 		mu = tf.concat([p_actions,q_actions],1)
 		# mu = tf.reshape(mu,[state.shape[0],self.n_actions])
 		
